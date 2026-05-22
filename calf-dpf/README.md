@@ -35,10 +35,32 @@ Artifacts land under `calf-dpf/bin/` in the formats listed by `TARGETS`
 - [x] Phase 1: DSP decoupling
 - [x] Phase 2: parameter / MIDI bridge
 - [x] Phase 3: state bridge
-- [ ] Phase 4: shared UI lib *(in progress — knob/vu/led/toggle/combo/label/value done; line-graph stubbed; XML→C++ codegen working for Compressor)*
-- [ ] Phase 5: per-plugin migration
+- [x] Phase 4: shared UI lib *(simple widgets + layout engine; CalfLineGraph still a placeholder rect — real frequency-response / FFT rendering is the v1.1 visual upgrade)*
+- [x] Phase 5: per-plugin migration *(51 plugins; see `make list`)*
 - [ ] Phase 6: standalone story
-- [ ] Phase 7: validation + release
+- [ ] Phase 7: validation + release *(smoke tests landed — `make smoke` and `make dsp-smoke`; bit-exact null-test vs upstream Calf LV2 still TODO)*
+
+## Build everything
+
+```sh
+git submodule update --init --recursive
+make -C calf-dpf            # builds all 51 plugin subdirs
+```
+
+Per-plugin builds also work: `make -C calf-dpf/plugins/Compressor`.
+
+## Smoke tests
+
+```sh
+make -C calf-dpf smoke      # launch each JACK standalone briefly,
+                            # report load-time crashes
+make -C calf-dpf dsp-smoke  # push audio through every Calf module
+                            # directly, report PASS / SILENT / FAIL
+```
+
+Today: 51/51 standalones launch, 48 emit audio with default params,
+3 are SILENT until configure-vars are populated (Monosynth modmatrix,
+FluidSynth SF2 path, Wavetable data).
 
 ## XML→C++ codegen
 
