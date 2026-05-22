@@ -3,13 +3,16 @@
 NAME = CalfCompressor
 
 FILES_DSP = CompressorPlugin.cpp
+FILES_UI  = CompressorUI.cpp
 
 # Bring libcalfdsp.a + its include path in.
 CALF_DSP_DIR  = ../../dsp
 CALF_BRIDGE   = ../../bridge
-BUILD_CXX_FLAGS_EXTRA  = -I$(CALF_DSP_DIR)/include -I$(CALF_DSP_DIR) -I$(CALF_BRIDGE)
+CALF_UILIB    = ../../ui-lib
+BUILD_CXX_FLAGS_EXTRA  = -I$(CALF_DSP_DIR)/include -I$(CALF_DSP_DIR) -I$(CALF_BRIDGE) -I$(CALF_UILIB)
 BUILD_CXX_FLAGS_EXTRA += $(shell pkg-config --cflags fluidsynth expat)
 EXTRA_DSP_LIBS = $(CALF_DSP_DIR)/libcalfdsp.a $(shell pkg-config --libs fluidsynth expat) -lpthread
+EXTRA_UI_LIBS  = $(CALF_DSP_DIR)/libcalfdsp.a $(shell pkg-config --libs fluidsynth expat) -lpthread
 
 DPF_TARGET_DIR = ../../bin
 DPF_BUILD_DIR  = ../../build
@@ -20,7 +23,7 @@ include ../../../dpf/Makefile.plugins.mk
 BUILD_CXX_FLAGS += $(BUILD_CXX_FLAGS_EXTRA)
 
 TARGETS  = jack
-TARGETS += lv2_dsp
+TARGETS += lv2_sep
 TARGETS += vst3
 TARGETS += clap
 
