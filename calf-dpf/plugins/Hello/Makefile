@@ -6,7 +6,7 @@ FILES_DSP = HelloPlugin.cpp
 
 # Land artifacts inside calf-dpf/ instead of the legacy tree root.
 DPF_TARGET_DIR = ../../bin
-DPF_BUILD_DIR  = ../../build
+DPF_BUILD_DIR  = ../../build/Hello
 
 include ../../../dpf/Makefile.plugins.mk
 

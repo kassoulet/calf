@@ -26,12 +26,12 @@ INFO_TMPL = """\
 #ifndef DISTRHO_PLUGIN_INFO_H_INCLUDED
 #define DISTRHO_PLUGIN_INFO_H_INCLUDED
 
-#define DISTRHO_PLUGIN_BRAND   "Calf"
+#define DISTRHO_PLUGIN_BRAND   "CalfDPFClaude"
 #define DISTRHO_PLUGIN_NAME    "{name}"
 #define DISTRHO_PLUGIN_URI     "https://calf-studio-gear.org/plugins/{slug}"
 #define DISTRHO_PLUGIN_CLAP_ID "org.calf-studio-gear.{slug}"
 
-#define DISTRHO_PLUGIN_BRAND_ID  Calf
+#define DISTRHO_PLUGIN_BRAND_ID  CalfDPFClaude
 #define DISTRHO_PLUGIN_UNIQUE_ID {uid}
 
 #define DISTRHO_PLUGIN_HAS_UI       1
@@ -104,7 +104,12 @@ EXTRA_DSP_LIBS = $(CALF_DSP_DIR)/libcalfdsp.a $(shell pkg-config --libs fluidsyn
 EXTRA_UI_LIBS  = $(CALF_DSP_DIR)/libcalfdsp.a $(shell pkg-config --libs fluidsynth expat) -lpthread
 
 DPF_TARGET_DIR = ../../bin
-DPF_BUILD_DIR  = ../../build
+# Per-plugin build dir: DPF compiles DistrhoPluginMain_*.cpp against the
+# current plugin's DistrhoPluginInfo.h, then caches the resulting .o.
+# A shared build/ would bake the first plugin's URI / unique-id into
+# every other plugin's .so. Isolating per plugin makes each binary
+# carry its own identity. Worth the extra disk space.
+DPF_BUILD_DIR  = ../../build/{name}
 
 include ../../../dpf/Makefile.plugins.mk
 

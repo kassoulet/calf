@@ -1,12 +1,12 @@
 #ifndef DISTRHO_PLUGIN_INFO_H_INCLUDED
 #define DISTRHO_PLUGIN_INFO_H_INCLUDED
 
-#define DISTRHO_PLUGIN_BRAND   "Calf"
+#define DISTRHO_PLUGIN_BRAND   "CalfDPFClaude"
 #define DISTRHO_PLUGIN_NAME    "Mono"
 #define DISTRHO_PLUGIN_URI     "https://calf-studio-gear.org/plugins/mono"
 #define DISTRHO_PLUGIN_CLAP_ID "org.calf-studio-gear.mono"
 
-#define DISTRHO_PLUGIN_BRAND_ID  Calf
+#define DISTRHO_PLUGIN_BRAND_ID  CalfDPFClaude
 #define DISTRHO_PLUGIN_UNIQUE_ID cMno
 
 #define DISTRHO_PLUGIN_HAS_UI       1

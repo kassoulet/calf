@@ -19,9 +19,22 @@ opt-in.)
 | 4 — shared UI lib            | ✅ done  | knob / vu / led / toggle / combo / label / value / line-graph widgets, packing solver, XML→C++ codegen, real `CalfLineGraph` via UI-side DSP shadow |
 | 5 — per-plugin migration     | ✅ done  | 51 plugins; every audio_module in `modulelist.h` covered |
 | 6 — standalone story         | ✅ done  | `calfjackhost` dropped; `calf-dpf/MIGRATION.md` points users at Carla |
-| 7 — validation / release     | 🔶 partial | smoke tests landed (`make smoke`, `make dsp-smoke`); bit-exact null-test vs upstream Calf still TODO |
+| 7 — validation / release     | 🔶 partial | smoke tests landed (`make smoke`, `make dsp-smoke`, `make lv2_render`); per-plugin Lilv render in place; bit-exact null-test vs upstream Calf still TODO |
 
 See `calf-dpf/README.md` for the per-target build commands.
+
+**Branding:** plugins ship under `DISTRHO_PLUGIN_BRAND = "CalfDPFClaude"`
+so DAW vendor menus distinguish this fork from upstream Calf at a
+glance. URIs remain `calf-studio-gear.org/plugins/...` so existing
+sessions still resolve.
+
+**Build isolation:** each plugin uses its own `DPF_BUILD_DIR =
+../../build/<Name>` rather than a shared tree. DPF compiles
+`DistrhoPluginMain_*.cpp` against the current plugin's
+`DistrhoPluginInfo.h` and caches the resulting object; a shared build
+dir would bake the first plugin's URI / unique-id into every other
+plugin's `.so`. This was discovered during Phase 7b setup — see commit
+log.
 
 ---
 
@@ -275,12 +288,23 @@ auto-discovers every `plugins/*/Makefile`.
       PASS / SILENT / FAIL. Currently 48 PASS, 3 SILENT (Monosynth's
       modmatrix, FluidSynth's SF2 path, Wavetable's wavetable data —
       all need configure-var fixtures), 0 FAIL.
+- [x] **`tools/lv2_render`** — minimal Lilv-based host that loads any
+      LV2 URI from `bin/`, connects all ports to defaults, runs N
+      frames (silence or 1 kHz tone), and reports per-output peak/RMS.
+      Caught the per-plugin-build-dir bug above; needed before any
+      null-test can run.
+- [x] **Build-dir isolation fix** — every plugin Makefile uses
+      `DPF_BUILD_DIR = ../../build/<Name>`. Was a real correctness
+      issue: shared build dir meant every plugin's LV2 manifest
+      claimed to be `pitch` (the first-built URI).
 - [ ] Run `lv2lint` / `sord_validate` on every generated `.ttl`
       manifest. (TTL generation itself already runs as part of each
       plugin's build.)
 - [ ] **Bit-exact null test** per effect against the upstream Calf LV2
       build: same input through both binaries, diff the output. DSP
       code is identical so the diff should be zero up to denormals.
+      `tools/lv2_render` is the renderer half; needs a comparison
+      script against the legacy `.lv2` bundles.
 - [ ] Test on Linux + Windows + macOS. Linux is the primary target;
       DPF provides Win/macOS support effectively for free, but
       FluidSynth's SF2 loader and the build environment need

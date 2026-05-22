@@ -14,7 +14,7 @@ EXTRA_DSP_LIBS = $(CALF_DSP_DIR)/libcalfdsp.a $(shell pkg-config --libs fluidsyn
 EXTRA_UI_LIBS  = $(CALF_DSP_DIR)/libcalfdsp.a $(shell pkg-config --libs fluidsynth expat) -lpthread
 
 DPF_TARGET_DIR = ../../bin
-DPF_BUILD_DIR  = ../../build
+DPF_BUILD_DIR  = ../../build/Saturator
 
 include ../../../dpf/Makefile.plugins.mk
 

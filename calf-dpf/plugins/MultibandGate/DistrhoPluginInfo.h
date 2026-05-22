@@ -1,12 +1,12 @@
 #ifndef DISTRHO_PLUGIN_INFO_H_INCLUDED
 #define DISTRHO_PLUGIN_INFO_H_INCLUDED
 
-#define DISTRHO_PLUGIN_BRAND   "Calf"
+#define DISTRHO_PLUGIN_BRAND   "CalfDPFClaude"
 #define DISTRHO_PLUGIN_NAME    "MultibandGate"
 #define DISTRHO_PLUGIN_URI     "https://calf-studio-gear.org/plugins/multibandgate"
 #define DISTRHO_PLUGIN_CLAP_ID "org.calf-studio-gear.multibandgate"
 
-#define DISTRHO_PLUGIN_BRAND_ID  Calf
+#define DISTRHO_PLUGIN_BRAND_ID  CalfDPFClaude
 #define DISTRHO_PLUGIN_UNIQUE_ID cMbG
 
 #define DISTRHO_PLUGIN_HAS_UI       1
