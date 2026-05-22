@@ -13,6 +13,10 @@
 #include "CalfValue.hpp"
 #include "CalfVuMeter.hpp"
 #include <calf/metadata.h>
+#ifndef ENABLE_EXPERIMENTAL
+#define ENABLE_EXPERIMENTAL 1
+#endif
+#include <calf/modules_filter.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -202,6 +206,7 @@ public:
                 {
                     auto c_37 = std::make_unique<CalfTableItem>(1, 2, false, 0, 0);
                     auto* w_38 = new CalfLineGraph(this, *meta.get_param_props(_resolve("ls_freq")), _resolve("ls_freq"), 500, 200);
+                    fLineGraphs.push_back({ w_38, static_cast<int>(_resolve("ls_freq")) });
                     w_38->setSize(static_cast<uint>(500), static_cast<uint>(200));
                     fWidgets.emplace_back(w_38);
                     fByIndex[_resolve("ls_freq")].push_back(w_38);
@@ -851,6 +856,29 @@ public:
             _root->place(0, 0, W, H);
         }
         fRoot = std::move(_root);
+
+        // Shadow module: same DSP class as the running plugin, instantiated
+        // UI-side just so <line-graph> widgets can query line_graph_iface
+        // synchronously during paint.
+        fShadow = std::make_unique<calf_plugins::equalizer12band_audio_module>();
+        fShadowParams.assign(Meta::param_count, 0.0f);
+        for (uint32_t i = 0; i < Meta::param_count; ++i) {
+            fShadowParams[i] = meta.get_param_props(static_cast<int>(i))->def_value;
+            fShadow->params[i] = &fShadowParams[i];
+        }
+        fShadow->post_instantiate(48000);
+        fShadow->set_sample_rate(48000);
+        fShadow->params_changed();
+        fShadow->activate();
+        // Not every Calf module inherits line_graph_iface — only the
+        // ones that draw curves do. Cross-cast at runtime; null means
+        // "this plugin has no curves to draw, paint the placeholder".
+        const calf_plugins::line_graph_iface* _lg =
+            dynamic_cast<const calf_plugins::line_graph_iface*>(fShadow.get());
+        if (_lg) {
+            for (auto& g : fLineGraphs)
+                g.w->setGraphSource(_lg, g.idx);
+        }
     }
 
 protected:
@@ -866,8 +894,13 @@ protected:
     void parameterChanged(uint32_t index, float value) override
     {
         auto it = fByIndex.find(index);
-        if (it == fByIndex.end()) return;
-        for (auto* w : it->second) w->setValue(value, /*notify=*/false);
+        if (it != fByIndex.end())
+            for (auto* w : it->second) w->setValue(value, /*notify=*/false);
+        if (fShadow && index < fShadowParams.size()) {
+            fShadowParams[index] = value;
+            fShadow->params_changed();
+            for (auto& g : fLineGraphs) g.w->refresh();
+        }
     }
 
     void widgetValueChanged(CalfWidgetBase* w, float v) override
@@ -875,12 +908,29 @@ protected:
         editParameter(w->getParamIndex(), true);
         setParameterValue(w->getParamIndex(), v);
         editParameter(w->getParamIndex(), false);
+        if (fShadow && w->getParamIndex() < fShadowParams.size()) {
+            fShadowParams[w->getParamIndex()] = v;
+            fShadow->params_changed();
+            for (auto& g : fLineGraphs) g.w->refresh();
+        }
     }
+
+    // No-op for WANT_STATE plugins (Monosynth, Organ, FluidSynth, Wavetable).
+    // Codegen UIs don't yet visualise state keys (organ presets, wavetable
+    // data, SF2 path, modmatrix rows); hand-written subclasses can override.
+    // DPF only declares stateChanged when the plugin opts in, so guard.
+#if DISTRHO_PLUGIN_WANT_STATE
+    void stateChanged(const char* /*key*/, const char* /*value*/) override {}
+#endif
 
 private:
     std::vector<std::unique_ptr<CalfWidgetBase>>      fWidgets;
     std::map<uint32_t, std::vector<CalfWidgetBase*>>  fByIndex;
     std::unique_ptr<CalfLayoutItem>                   fRoot;
+    std::unique_ptr<calf_plugins::equalizer12band_audio_module> fShadow;
+    std::vector<float>                            fShadowParams;
+    struct LineGraphRef { CalfLineGraph* w; int idx; };
+    std::vector<LineGraphRef>                     fLineGraphs;
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Eq12UI)
 };
 

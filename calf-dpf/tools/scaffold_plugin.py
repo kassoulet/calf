@@ -234,7 +234,9 @@ def main() -> int:
         run_signature=run_signature, midi_args=midi_args))
     (plugins_dir / "Makefile").write_text(MAKEFILE_TMPL.format(name=args.name))
 
-    # Codegen the UI.
+    # Codegen the UI. Always pass --module-class so any <line-graph>
+    # the XML mentions gets bound to a UI-side shadow of the DSP
+    # module; plugins without graphs simply carry an idle shadow.
     xml_path = args.repo_root / "gui" / "gui" / f"{args.xml}.xml"
     ui_out   = plugins_dir / f"{args.name}UI.cpp"
     subprocess.check_call([
@@ -243,6 +245,8 @@ def main() -> int:
         str(xml_path),
         "--class-name",      f"{args.name}UI",
         "--metadata-class",  f"{args.module}_metadata",
+        "--module-class",    f"{args.module}_audio_module",
+        "--module-header",   args.header,
         "-o", str(ui_out),
     ])
     print(f"scaffolded {args.name} in {plugins_dir}")
