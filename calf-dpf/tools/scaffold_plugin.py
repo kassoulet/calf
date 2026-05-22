@@ -72,7 +72,7 @@ protected:
 
     void initAudioPort(bool input, uint32_t index, AudioPort& port) override
     {{
-        port.groupId = {port_group};
+        {init_port_body}
         Plugin::initAudioPort(input, index, port);
     }}
 
@@ -146,7 +146,11 @@ def main() -> int:
     p.add_argument("--unique-id", required=True,
                    help="4-character unique ID (e.g. cSat)")
     p.add_argument("--description", required=True)
-    p.add_argument("--inout", choices=("stereo", "mono"), default="stereo")
+    p.add_argument("--inout",
+                   choices=("stereo", "mono", "mono-to-stereo", "sidechain-stereo"),
+                   default="stereo",
+                   help="port shape: stereo=2/2, mono=1/1, mono-to-stereo=1/2, "
+                        "sidechain-stereo=4/2 (2 main + 2 sidechain).")
     p.add_argument("--repo-root", type=Path, default=Path.cwd(),
                    help="repo root (default: cwd)")
     args = p.parse_args()
@@ -157,8 +161,14 @@ def main() -> int:
 
     if args.inout == "stereo":
         ins, outs, group = 2, 2, "kPortGroupStereo"
-    else:
+    elif args.inout == "mono":
         ins, outs, group = 1, 1, "kPortGroupMono"
+    elif args.inout == "mono-to-stereo":
+        # Output is stereo, input is mono. initAudioPort selects per-port.
+        ins, outs, group = 1, 2, "MONO_TO_STEREO"
+    else:  # sidechain-stereo
+        # 2 main + 2 sidechain = 4 inputs; sidechain ports use a separate group.
+        ins, outs, group = 4, 2, "SIDECHAIN_STEREO"
 
     slug = args.module
     plugins_dir = args.repo_root / "calf-dpf" / "plugins" / args.name
@@ -166,13 +176,30 @@ def main() -> int:
 
     u = args.unique_id
 
+    if group == "MONO_TO_STEREO":
+        init_port_body = (
+            "port.groupId = input ? kPortGroupMono : kPortGroupStereo;"
+        )
+    elif group == "SIDECHAIN_STEREO":
+        # First two inputs are the main signal, last two are the sidechain.
+        init_port_body = (
+            "if (input && index >= 2) {\n"
+            "            port.groupId = kPortGroupStereo;\n"
+            "            port.hints |= kAudioPortIsSidechain;\n"
+            "        } else {\n"
+            "            port.groupId = kPortGroupStereo;\n"
+            "        }"
+        )
+    else:
+        init_port_body = f"port.groupId = {group};"
+
     (plugins_dir / "DistrhoPluginInfo.h").write_text(INFO_TMPL.format(
         name=args.name, slug=slug, uid=u, ins=ins, outs=outs))
     (plugins_dir / f"{args.name}Plugin.cpp").write_text(PLUGIN_TMPL.format(
         name=args.name, module=args.module, header=args.header,
         description=args.description.replace('"', '\\"'),
         u0=u[0], u1=u[1], u2=u[2], u3=u[3],
-        port_group=group))
+        init_port_body=init_port_body))
     (plugins_dir / "Makefile").write_text(MAKEFILE_TMPL.format(name=args.name))
 
     # Codegen the UI.
