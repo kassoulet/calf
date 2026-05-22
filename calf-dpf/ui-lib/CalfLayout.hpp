@@ -1,7 +1,7 @@
 /*
  * CalfLayout — tiny GTK-style packing solver for codegen-emitted UIs.
  *
- * Mirrors the subset of GTK2 box/table semantics that Calf's gui/gui/*.xml
+ * Mirrors the subset of GTK2 box/table semantics that Calf's gui XML
  * actually uses: HBox/VBox with expand+fill+spacing+padding, Table with
  * attach-x/y/w/h plus per-axis homogeneous flag, Align with align+scale,
  * and a Frame that draws a labelled border in its own paint pass.

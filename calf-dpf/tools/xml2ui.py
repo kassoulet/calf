@@ -362,6 +362,10 @@ def generate(xml_path: Path, class_name: str, metadata_class: str,
     extra_includes = sorted(em.includes)
     include_lines = "\n".join(f'#include "{h}"' for h in extra_includes)
 
+    # `using` lines: layout types always, plus only the widget classes whose
+    # headers we actually included (the XML may not exercise every widget).
+    widget_classes = {WIDGET_MAP[t][0] for t in WIDGET_MAP
+                      if WIDGET_MAP[t][1] in em.includes}
     using_lines = "\n".join(
         f"using DGL_NAMESPACE::{name};" for name in sorted({
             "CalfWidgetBase",
@@ -372,7 +376,7 @@ def generate(xml_path: Path, class_name: str, metadata_class: str,
             "CalfFrameItem",
             "CalfAlignItem",
             "CalfPacking",
-            *[WIDGET_MAP.get(t, ("CalfLineGraph",""))[0] for t in WIDGET_MAP]
+            *widget_classes,
         })
     )
 
