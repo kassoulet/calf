@@ -1,59 +1,65 @@
 /*
- * Calf Compressor UI — minimal NanoVG layout.
+ * Calf Compressor UI — per-parameter widget dispatch.
  *
- * Lays out all 16 Calf compressor parameters as CalfKnob widgets in a
- * 4 × 4 grid. Output params (meters, clip LEDs, reduction) are visually
- * present but read-only — their value text updates from parameterChanged.
- *
- * This is intentionally a starter UI: no skinning, no fancy meters, no
- * graph. The next sub-phase swaps the meter params for a CalfVuMeter
- * widget and adds the compression-curve graph.
+ * Reads each parameter's PF_CTL_* hint and instantiates the matching
+ * widget: knob, vu meter, LED, toggle, or combo. Layout is a 4×4 grid
+ * in source-table order (matching how the legacy GTK UI presented
+ * them). Future passes will move to the bespoke GTK XML layout via
+ * codegen — for now the grid is sufficient to validate sync end-to-end.
  */
 #include "DistrhoUI.hpp"
 #include "CalfKnob.hpp"
+#include "CalfVuMeter.hpp"
+#include "CalfLed.hpp"
+#include "CalfToggle.hpp"
+#include "CalfComboBox.hpp"
 
 #include <calf/metadata.h>
 
 START_NAMESPACE_DISTRHO
 
+using DGL_NAMESPACE::CalfWidgetBase;
 using DGL_NAMESPACE::CalfKnob;
+using DGL_NAMESPACE::CalfVuMeter;
+using DGL_NAMESPACE::CalfLed;
+using DGL_NAMESPACE::CalfToggle;
+using DGL_NAMESPACE::CalfComboBox;
 
-class CompressorUI : public UI, public CalfKnob::Callback
+class CompressorUI : public UI, public CalfWidgetBase::Callback
 {
 public:
-    static constexpr uint kCols = 4;
-    static constexpr uint kRows = 4;
-    static constexpr uint kKnobW = 72;
-    static constexpr uint kKnobH = 96;
-    static constexpr uint kPad  = 6;
+    static constexpr uint kCols  = 4;
+    static constexpr uint kRows  = 4;
+    static constexpr uint kCellW = 72;
+    static constexpr uint kCellH = 96;
+    static constexpr uint kPad   = 6;
 
     CompressorUI()
-        : UI(kCols * kKnobW + 2 * kPad,
-             kRows * kKnobH + 2 * kPad)
+        : UI(kCols * kCellW + 2 * kPad,
+             kRows * kCellH + 2 * kPad)
     {
         loadSharedResources();
         using namespace calf_plugins;
         compressor_metadata meta;
         for (uint32_t i = 0; i < compressor_metadata::param_count; ++i) {
             const parameter_properties* pp = meta.get_param_props(static_cast<int>(i));
-            CalfKnob* k = new CalfKnob(this, *pp, i);
+            CalfWidgetBase* w = makeWidget(*pp, i);
             const uint row = i / kCols;
             const uint col = i % kCols;
-            k->setAbsolutePos(kPad + col * kKnobW, kPad + row * kKnobH);
-            k->setCallback(this);
-            fKnobs[i] = k;
+            w->setAbsolutePos(kPad + col * kCellW, kPad + row * kCellH);
+            w->setCallback(this);
+            fWidgets[i] = w;
         }
     }
 
     ~CompressorUI() override
     {
-        for (CalfKnob* k : fKnobs) delete k;
+        for (CalfWidgetBase* w : fWidgets) delete w;
     }
 
 protected:
     void onNanoDisplay() override
     {
-        // Background panel.
         beginPath();
         rect(0, 0, getWidth(), getHeight());
         fillColor(Color(0.12f, 0.12f, 0.14f));
@@ -62,20 +68,34 @@ protected:
 
     void parameterChanged(uint32_t index, float value) override
     {
-        if (index < calf_plugins::compressor_metadata::param_count && fKnobs[index])
-            fKnobs[index]->setValue(value, /*notify=*/false);
+        if (index < calf_plugins::compressor_metadata::param_count && fWidgets[index])
+            fWidgets[index]->setValue(value, /*notify=*/false);
     }
 
-    /* CalfKnob::Callback */
-    void knobValueChanged(CalfKnob* knob, float value) override
+    /* CalfWidgetBase::Callback */
+    void widgetValueChanged(CalfWidgetBase* w, float v) override
     {
-        editParameter(knob->getParamIndex(), true);
-        setParameterValue(knob->getParamIndex(), value);
-        editParameter(knob->getParamIndex(), false);
+        editParameter(w->getParamIndex(), true);
+        setParameterValue(w->getParamIndex(), v);
+        editParameter(w->getParamIndex(), false);
     }
 
 private:
-    CalfKnob* fKnobs[calf_plugins::compressor_metadata::param_count] = {nullptr};
+    CalfWidgetBase* makeWidget(const calf_plugins::parameter_properties& pp,
+                               uint32_t idx)
+    {
+        using namespace calf_plugins;
+        switch (pp.flags & PF_CTLMASK) {
+            case PF_CTL_METER:  return new CalfVuMeter(this, pp, idx);
+            case PF_CTL_LED:    return new CalfLed    (this, pp, idx);
+            case PF_CTL_TOGGLE: return new CalfToggle (this, pp, idx);
+            case PF_CTL_COMBO:  return new CalfComboBox(this, pp, idx);
+            case PF_CTL_KNOB:   /* fallthrough */
+            default:            return new CalfKnob   (this, pp, idx);
+        }
+    }
+
+    CalfWidgetBase* fWidgets[calf_plugins::compressor_metadata::param_count] = {nullptr};
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CompressorUI)
 };
 
