@@ -106,8 +106,16 @@ public:
     using Module   = CalfModule;
     using Metadata = typename CalfModule::metadata_type;
 
+    static uint32_t calfStateCount()
+    {
+        Metadata m;
+        std::vector<std::string> v;
+        m.get_configure_vars(v);
+        return static_cast<uint32_t>(v.size());
+    }
+
     CalfPluginBase()
-        : Plugin(Metadata::param_count, /*programs=*/0, /*states=*/0),
+        : Plugin(Metadata::param_count, /*programs=*/0, calfStateCount()),
           fModule()
     {
         // Wire the parameter shadow buffer into Calf's module before
@@ -117,6 +125,9 @@ public:
                                 ->get_param_props(i)->def_value;
             fModule.params[i] = &fParamCache[i];
         }
+        // Cache the static configure-var key list once. Each entry will
+        // become one DPF state slot.
+        Metadata().get_configure_vars(fStateKeys);
         // post_instantiate has to be called once, after which set_sample_rate
         // / activate are valid. Host-supplied SR is plugged in via DPF.
         fModule.post_instantiate(static_cast<uint32_t>(getSampleRate()));
@@ -157,6 +168,49 @@ protected:
 
     void activate()   override { fModule.params_changed(); fModule.activate(); }
     void deactivate() override { fModule.deactivate(); }
+
+#if DISTRHO_PLUGIN_WANT_STATE
+    /* ---- Calf configure() vars <-> DPF State ----------------------- *
+     *
+     * Each entry returned by Metadata::get_configure_vars() becomes one
+     * DPF state slot. setState forwards to module->configure(); getState
+     * snapshots a single key via a one-shot send_configure_iface captor.
+     */
+    void initState(uint32_t index, State& state) override
+    {
+        if (index >= fStateKeys.size()) return;
+        state.key          = fStateKeys[index].c_str();
+        state.label        = fStateKeys[index].c_str();
+        state.hints        = kStateIsHostWritable | kStateIsOnlyForDSP;
+        state.defaultValue = "";
+    }
+
+    void setState(const char* key, const char* value) override
+    {
+        char* err = fModule.configure(key, value);
+        // configure() returns char* error string (rare, ignored here).
+        (void)err;
+    }
+
+    String getState(const char* key) const override
+    {
+        struct OneValueCaptor : calf_plugins::send_configure_iface {
+            const char* needle;
+            String      found;
+            bool        seen = false;
+            void send_configure(const char* k, const char* v) override
+            {
+                if (!seen && std::strcmp(k, needle) == 0) {
+                    found = v;
+                    seen  = true;
+                }
+            }
+        } cap;
+        cap.needle = key;
+        const_cast<Module&>(fModule).send_configures(&cap);
+        return cap.seen ? cap.found : String("");
+    }
+#endif // DISTRHO_PLUGIN_WANT_STATE
 
     /* ---- sub-buffer processing helper ------------------------------- *
      *
@@ -240,6 +294,7 @@ private:
 protected:
     Module fModule;
     float  fParamCache[Metadata::param_count];
+    std::vector<std::string> fStateKeys;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CalfPluginBase)
 };
