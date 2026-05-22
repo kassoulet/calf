@@ -1,9 +1,9 @@
 #!/usr/bin/make -f
 
-NAME = CalfMonosynth
+NAME = CalfFluidSynth
 
-FILES_DSP = MonosynthPlugin.cpp
-FILES_UI  = MonosynthUI.cpp
+FILES_DSP = FluidSynthPlugin.cpp
+FILES_UI  = FluidSynthUI.cpp
 
 CALF_DSP_DIR  = ../../dsp
 CALF_BRIDGE   = ../../bridge

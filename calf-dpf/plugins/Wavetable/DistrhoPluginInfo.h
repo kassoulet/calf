@@ -2,12 +2,12 @@
 #define DISTRHO_PLUGIN_INFO_H_INCLUDED
 
 #define DISTRHO_PLUGIN_BRAND   "Calf"
-#define DISTRHO_PLUGIN_NAME    "Monosynth"
-#define DISTRHO_PLUGIN_URI     "https://calf-studio-gear.org/plugins/monosynth"
-#define DISTRHO_PLUGIN_CLAP_ID "org.calf-studio-gear.monosynth"
+#define DISTRHO_PLUGIN_NAME    "Wavetable"
+#define DISTRHO_PLUGIN_URI     "https://calf-studio-gear.org/plugins/wavetable"
+#define DISTRHO_PLUGIN_CLAP_ID "org.calf-studio-gear.wavetable"
 
 #define DISTRHO_PLUGIN_BRAND_ID  Calf
-#define DISTRHO_PLUGIN_UNIQUE_ID cMSy
+#define DISTRHO_PLUGIN_UNIQUE_ID cWvt
 
 #define DISTRHO_PLUGIN_HAS_UI            1
 #define DISTRHO_UI_USE_NANOVG            1

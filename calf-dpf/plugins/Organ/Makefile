@@ -1,9 +1,9 @@
 #!/usr/bin/make -f
 
-NAME = CalfMonosynth
+NAME = CalfOrgan
 
-FILES_DSP = MonosynthPlugin.cpp
-FILES_UI  = MonosynthUI.cpp
+FILES_DSP = OrganPlugin.cpp
+FILES_UI  = OrganUI.cpp
 
 CALF_DSP_DIR  = ../../dsp
 CALF_BRIDGE   = ../../bridge

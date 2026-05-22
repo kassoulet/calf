@@ -1,9 +1,9 @@
 #!/usr/bin/make -f
 
-NAME = CalfMonosynth
+NAME = CalfPitch
 
-FILES_DSP = MonosynthPlugin.cpp
-FILES_UI  = MonosynthUI.cpp
+FILES_DSP = PitchPlugin.cpp
+FILES_UI  = PitchUI.cpp
 
 CALF_DSP_DIR  = ../../dsp
 CALF_BRIDGE   = ../../bridge

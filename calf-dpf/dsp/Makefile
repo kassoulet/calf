@@ -11,9 +11,12 @@ CC       ?= gcc
 
 PKG_CFLAGS := $(shell pkg-config --cflags fluidsynth expat)
 
+# ENABLE_EXPERIMENTAL gates FluidSynth, Wavetable, Pitch, and PsyClipper
+# in upstream Calf. They're all functional today, just historically not
+# considered "stable" enough for the default LV2 set.
 CXXFLAGS += -std=c++11 -O2 -fPIC -ffast-math -Wall \
-            -I$(INCDIR) -I. $(PKG_CFLAGS)
-CFLAGS   += -O2 -fPIC -ffast-math -I. $(PKG_CFLAGS)
+            -I$(INCDIR) -I. $(PKG_CFLAGS) -DENABLE_EXPERIMENTAL=1
+CFLAGS   += -O2 -fPIC -ffast-math -I. $(PKG_CFLAGS) -DENABLE_EXPERIMENTAL=1
 
 SRCS_CXX := $(wildcard $(SRCDIR)/*.cpp)
 SRCS_C   := $(wildcard $(SRCDIR)/*.c)

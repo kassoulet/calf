@@ -1,9 +1,9 @@
 #!/usr/bin/make -f
 
-NAME = CalfMonosynth
+NAME = CalfWavetable
 
-FILES_DSP = MonosynthPlugin.cpp
-FILES_UI  = MonosynthUI.cpp
+FILES_DSP = WavetablePlugin.cpp
+FILES_UI  = WavetableUI.cpp
 
 CALF_DSP_DIR  = ../../dsp
 CALF_BRIDGE   = ../../bridge

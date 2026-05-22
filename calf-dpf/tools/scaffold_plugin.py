@@ -147,10 +147,12 @@ def main() -> int:
                    help="4-character unique ID (e.g. cSat)")
     p.add_argument("--description", required=True)
     p.add_argument("--inout",
-                   choices=("stereo", "mono", "mono-to-stereo", "sidechain-stereo"),
+                   choices=("stereo", "mono", "mono-to-stereo",
+                            "sidechain-stereo"),
                    default="stereo",
                    help="port shape: stereo=2/2, mono=1/1, mono-to-stereo=1/2, "
-                        "sidechain-stereo=4/2 (2 main + 2 sidechain).")
+                        "sidechain-stereo=4/2 (2 main + 2 sidechain). "
+                        "Synths (0/2 + IS_SYNTH + state) are hand-written.")
     p.add_argument("--want-midi", action="store_true",
                    help="Enable MIDI input; run() takes midiEvents/Count and "
                         "forwards them to the bridge's MIDI dispatcher.")
