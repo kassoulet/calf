@@ -6,7 +6,7 @@
 #define DISTRHO_PLUGIN_URI     "https://calf-studio-gear.org/plugins/crusher"
 #define DISTRHO_PLUGIN_CLAP_ID "org.calf-studio-gear.crusher"
 
-#define DISTRHO_PLUGIN_BRAND_ID  CalfDPFClaude
+#define DISTRHO_PLUGIN_BRAND_ID  CDPF
 #define DISTRHO_PLUGIN_UNIQUE_ID cCrs
 
 #define DISTRHO_PLUGIN_HAS_UI       1

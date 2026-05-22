@@ -6,7 +6,7 @@
 #define DISTRHO_PLUGIN_URI     "https://calf-studio-gear.org/plugins/compressor"
 #define DISTRHO_PLUGIN_CLAP_ID "org.calf-studio-gear.compressor"
 
-#define DISTRHO_PLUGIN_BRAND_ID  CalfDPFClaude
+#define DISTRHO_PLUGIN_BRAND_ID  CDPF
 #define DISTRHO_PLUGIN_UNIQUE_ID cCmp
 
 #define DISTRHO_PLUGIN_HAS_UI       1

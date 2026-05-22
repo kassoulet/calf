@@ -6,7 +6,7 @@
 #define DISTRHO_PLUGIN_URI     "https://calf-studio-gear.org/plugins/gate"
 #define DISTRHO_PLUGIN_CLAP_ID "org.calf-studio-gear.gate"
 
-#define DISTRHO_PLUGIN_BRAND_ID  CalfDPFClaude
+#define DISTRHO_PLUGIN_BRAND_ID  CDPF
 #define DISTRHO_PLUGIN_UNIQUE_ID cGte
 
 #define DISTRHO_PLUGIN_HAS_UI       1

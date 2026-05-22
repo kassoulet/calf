@@ -6,7 +6,7 @@
 #define DISTRHO_PLUGIN_URI     "https://calf-studio-gear.org/plugins/reverse_delay"
 #define DISTRHO_PLUGIN_CLAP_ID "org.calf-studio-gear.reverse_delay"
 
-#define DISTRHO_PLUGIN_BRAND_ID  CalfDPFClaude
+#define DISTRHO_PLUGIN_BRAND_ID  CDPF
 #define DISTRHO_PLUGIN_UNIQUE_ID cRvD
 
 #define DISTRHO_PLUGIN_HAS_UI       1
