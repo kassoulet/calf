@@ -2,7 +2,7 @@
 # Top-level Makefile for the Calf DPF port.
 # Iterates each subdir under plugins/.
 
-PLUGINS = Hello
+PLUGINS = Hello Compressor Monosynth
 
 all: $(PLUGINS)
 
