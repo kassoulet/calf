@@ -280,6 +280,8 @@ auto-discovers every `plugins/*/Makefile`.
       so existing sessions still resolve.
 
 ### Phase 7 — Validation & release (🔶 partial)
+
+#### 7.a — Smoke + harness (✅ done)
 - [x] **`make smoke`** — launches every JACK standalone briefly,
       reports load-time crashes. Currently 51/51 pass.
 - [x] **`make dsp-smoke`** — `calf-dpf/tools/dsp_smoke.cpp`
@@ -291,26 +293,119 @@ auto-discovers every `plugins/*/Makefile`.
 - [x] **`tools/lv2_render`** — minimal Lilv-based host that loads any
       LV2 URI from `bin/`, connects all ports to defaults, runs N
       frames (silence or 1 kHz tone), and reports per-output peak/RMS.
-      Caught the per-plugin-build-dir bug above; needed before any
+      Caught the per-plugin-build-dir bug; needed before any
       null-test can run.
 - [x] **Build-dir isolation fix** — every plugin Makefile uses
       `DPF_BUILD_DIR = ../../build/<Name>`. Was a real correctness
       issue: shared build dir meant every plugin's LV2 manifest
       claimed to be `pitch` (the first-built URI).
-- [ ] Run `lv2lint` / `sord_validate` on every generated `.ttl`
-      manifest. (TTL generation itself already runs as part of each
-      plugin's build.)
-- [ ] **Bit-exact null test** per effect against the upstream Calf LV2
-      build: same input through both binaries, diff the output. DSP
-      code is identical so the diff should be zero up to denormals.
-      `tools/lv2_render` is the renderer half; needs a comparison
-      script against the legacy `.lv2` bundles.
-- [ ] Test on Linux + Windows + macOS. Linux is the primary target;
-      DPF provides Win/macOS support effectively for free, but
-      FluidSynth's SF2 loader and the build environment need
-      verification on those platforms.
+
+#### 7.b — Differential / null tests (planned)
+Same code path on both sides → zero diff is the success criterion.
+
+- [ ] **DPF LV2 vs upstream Calf LV2** — render identical input
+      through both, diff the output WAV. DSP source is the same; the
+      diff should be zero up to denormals. `tools/lv2_render` is
+      ready; need a comparison driver + a built copy of upstream
+      Calf at the same git tip.
+- [ ] **DPF LV2 vs direct DSP call** — `dsp_smoke` already drives
+      `process()`; render the same input via Lilv and diff. Isolates
+      bridge regressions from DSP regressions.
+- [ ] **Format equivalence** — DPF LV2 vs DPF VST3 vs DPF CLAP on
+      identical input. They wrap the same DSP; expected diff is zero.
+      Validates the wrapper layer per format.
+- [ ] **Reproducibility / determinism** — render the same input twice
+      under the same params and host config, diff. Should be
+      bit-identical. Catches stale-state and uninitialised-memory
+      bugs in the bridge.
+- [ ] **Buffer-size invariance** — for the same plugin and total
+      frame count, render at 64 / 128 / 256 / 512 / 1024 frames per
+      `run()` call. Output should match (within `MAX_SAMPLE_RUN`
+      slicing semantics; verify slicing doesn't introduce
+      discontinuities).
+- [ ] **Sample-rate sweep** — render at 44.1 / 48 / 88.2 / 96 / 192 kHz.
+      Effects should produce comparable RMS at all rates; no NaN/inf
+      at exotic rates.
+
+#### 7.c — Property / fuzz tests (planned)
+Random inputs that *no* output should turn into NaN/inf/silence.
+
+- [ ] **Parameter sweep fuzz** — for each plugin, sample N random
+      points in the parameter hypercube and render audio. Fail on
+      any NaN/inf output, or output > +12 dBFS clip.
+- [ ] **Audio-input fuzz** — drive each plugin with silence, DC,
+      impulse, white/pink noise, sine sweep, square, denormal floor.
+      Catches denormal handling and edge-case underflow.
+- [ ] **MIDI-input fuzz** (synths) — random note streams with edge
+      cases: simultaneous note-on/off at the same frame, pitch-bend
+      extremes (±8192), all-notes-off, controller resets, voice
+      stealing beyond `BasicSynth::polyphony`.
+- [ ] **Parameter automation** — sweep each parameter min→max during
+      playback at k-rate. Verify no clicks/pops (instantaneous
+      |Δsample| under a threshold), no NaN.
+
+#### 7.d — State round-trip (planned)
+For `WANT_STATE` plugins (Monosynth / Organ / FluidSynth / Wavetable).
+
+- [ ] **Capture → restore → capture** equivalence. `getState`,
+      `setState` it back into a fresh instance, `getState` again →
+      strings must match byte-for-byte.
+- [ ] **Audio equivalence after restore** — render the same audio
+      through both instances; outputs must match.
+- [ ] **Edge cases** — empty / corrupt / oversize state strings
+      must not crash the bridge.
+
+#### 7.e — RT safety & memory (planned)
+- [ ] **ASAN + UBSAN build** of the plugin set; run `make smoke +
+      dsp-smoke + lv2_render`. Surfaces uninitialised reads, OOB
+      access, sign-overflow.
+- [ ] **valgrind / memcheck** one render through each plugin to
+      catch leaks across `instantiate / activate / run × N /
+      deactivate / cleanup`.
+- [ ] **RT-thread allocation check** — build with a hooked
+      `malloc/free` that logs from inside `process()` / `run()`.
+      The bridge must not allocate on the audio thread.
+- [ ] **Thread-race check** — `helgrind` on a host that drives the
+      UI thread (parameter automation) concurrently with the audio
+      thread. The shadow-module pattern in `CalfLineGraph` adds a
+      UI-side `params_changed()` we need to verify is race-free with
+      the host's parameter delivery.
+
+#### 7.f — LV2 conformance (planned)
+- [ ] Run **`lv2lint`** against every generated `.ttl`. Catches
+      missing required predicates, wrong port group hints, malformed
+      enum values.
+- [ ] Run **`sord_validate`** to check the RDF turtle syntax + W3C
+      validity.
+- [ ] Run **`lv2bench`** to capture per-plugin CPU benchmarks.
+      Becomes a regression baseline.
+
+#### 7.g — Cross-platform (planned)
+- [ ] **Linux** — verified. CI on Debian/Ubuntu/Arch reasonable.
+- [ ] **Windows** — DPF builds VST3 / CLAP / LV2 for MinGW.
+      FluidSynth has a Win build; the SF2 loader path needs
+      verifying. CI via `cross` or a GitHub Actions Windows runner.
+- [ ] **macOS** — DPF supports Apple Silicon + Intel.
+      Need to confirm libfluidsynth via brew, signing for VST3 /
+      CLAP if distributing binaries.
+
+#### 7.h — Visual / UI (planned)
+- [ ] **Golden-image snapshot tests** — render each UI to a PNG at
+      default parameter values, diff against checked-in goldens.
+      Catches widget-position regressions in codegen output. Use a
+      headless GL via DPF's offscreen renderer.
+- [ ] **Live host integration** — load each plugin in Ardour /
+      Reaper / Bitwig / Carla, save/load session, scrub parameters
+      via host automation, verify no crash.
+- [ ] **DSP-bypass equivalence** — toggling each plugin's bypass
+      param should produce silence (in == out, within denormal
+      noise floor).
+
+#### 7.i — Release prep (planned)
 - [ ] Update `README.md`, `INSTALL`, `ChangeLog`, bump version
       (suggest `0.91.0-dpf` or `1.0.0`).
+- [ ] Tag, build release binaries for the three platforms,
+      sign + package per OS conventions.
 
 ---
 
