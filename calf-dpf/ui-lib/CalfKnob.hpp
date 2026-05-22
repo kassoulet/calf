@@ -25,13 +25,18 @@ public:
         setSize(72, 96);
     }
 
+    /* Codegen-emitted UIs render label + value as separate widgets and
+     * pass false here so the knob's own text doesn't overlap. */
+    void setShowLabels(bool show) noexcept { fShowLabels = show; }
+
 protected:
     void onNanoDisplay() override
     {
         const float w   = static_cast<float>(getWidth());
+        const float h   = static_cast<float>(getHeight());
         const float cx  = w * 0.5f;
-        const float cy  = 36.0f;
-        const float r   = 26.0f;
+        const float cy  = fShowLabels ? 36.0f : h * 0.5f;
+        const float r   = std::min(cx, cy) - 4.0f;
 
         const float pos01 = static_cast<float>(fProps.to_01(fValue));
         const float a0 = 0.75f * M_PI;
@@ -57,16 +62,18 @@ protected:
         fillColor(Color(1.0f, 0.85f, 0.5f));
         fill();
 
-        fontFace(NANOVG_DEJAVU_SANS_TTF);
-        fontSize(11.0f);
-        fillColor(Color(0.85f, 0.85f, 0.85f));
-        textAlign(ALIGN_CENTER | ALIGN_TOP);
-        text(cx, 66.0f, fProps.short_name ? fProps.short_name : fProps.name, nullptr);
+        if (fShowLabels) {
+            fontFace(NANOVG_DEJAVU_SANS_TTF);
+            fontSize(11.0f);
+            fillColor(Color(0.85f, 0.85f, 0.85f));
+            textAlign(ALIGN_CENTER | ALIGN_TOP);
+            text(cx, 66.0f, fProps.short_name ? fProps.short_name : fProps.name, nullptr);
 
-        std::string s = fProps.to_string(fValue);
-        fontSize(10.0f);
-        fillColor(Color(0.7f, 0.85f, 1.0f));
-        text(cx, 80.0f, s.c_str(), nullptr);
+            std::string s = fProps.to_string(fValue);
+            fontSize(10.0f);
+            fillColor(Color(0.7f, 0.85f, 1.0f));
+            text(cx, 80.0f, s.c_str(), nullptr);
+        }
     }
 
     bool onMouse(const MouseEvent& ev) override
@@ -107,6 +114,7 @@ protected:
     }
 
 private:
+    bool   fShowLabels  = true;
     bool   fDragging    = false;
     int    fDragStartY  = 0;
     double fDragStart01 = 0.0;

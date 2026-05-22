@@ -27,30 +27,31 @@ public:
             for (const char** p = props.choices; *p; ++p) ++fCount;
     }
 
+    void setShowLabels(bool show) noexcept { fShowLabels = show; }
+
 protected:
     void onNanoDisplay() override
     {
         const float W = static_cast<float>(getWidth());
+        const float H = static_cast<float>(getHeight());
+        const float frameY = fShowLabels ? 28.0f : (H * 0.5f - 13.0f);
 
-        // Frame
         beginPath();
-        roundedRect(4, 28, W - 8, 26, 3.0f);
+        roundedRect(4, frameY, W - 8, 26, 3.0f);
         fillColor(Color(0.16f, 0.16f, 0.18f));
         fill();
         strokeColor(Color(0.40f, 0.40f, 0.45f));
         strokeWidth(1.0f);
         stroke();
 
-        // Arrow
         beginPath();
-        moveTo(W - 14, 38);
-        lineTo(W - 8,  38);
-        lineTo(W - 11, 44);
+        moveTo(W - 14, frameY + 10);
+        lineTo(W - 8,  frameY + 10);
+        lineTo(W - 11, frameY + 16);
         closePath();
         fillColor(Color(0.85f, 0.85f, 0.85f));
         fill();
 
-        // Selection text
         const int idx = static_cast<int>(std::round(fValue - fProps.min));
         const char* label = (fProps.choices && idx >= 0 && idx < fCount)
                               ? fProps.choices[idx]
@@ -59,13 +60,14 @@ protected:
         fontSize(10.0f);
         fillColor(Color(0.95f, 0.95f, 1.0f));
         textAlign(ALIGN_CENTER | ALIGN_MIDDLE);
-        text(W * 0.5f - 4, 41, label, nullptr);
+        text(W * 0.5f - 4, frameY + 13, label, nullptr);
 
-        // Param name
-        fontSize(11.0f);
-        fillColor(Color(0.85f, 0.85f, 0.85f));
-        textAlign(ALIGN_CENTER | ALIGN_TOP);
-        text(W * 0.5f, 8, fProps.short_name ? fProps.short_name : fProps.name, nullptr);
+        if (fShowLabels) {
+            fontSize(11.0f);
+            fillColor(Color(0.85f, 0.85f, 0.85f));
+            textAlign(ALIGN_CENTER | ALIGN_TOP);
+            text(W * 0.5f, 8, fProps.short_name ? fProps.short_name : fProps.name, nullptr);
+        }
     }
 
     bool onMouse(const MouseEvent& ev) override
@@ -93,7 +95,8 @@ private:
         setValue(fProps.min + static_cast<float>(idx), /*notify=*/true);
     }
 
-    int fCount;
+    int  fCount;
+    bool fShowLabels = true;
 };
 
 END_NAMESPACE_DGL

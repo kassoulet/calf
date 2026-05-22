@@ -22,37 +22,42 @@ public:
         setSize(72, 96);
     }
 
+    void setShowLabels(bool show) noexcept { fShowLabels = show; }
+
 protected:
     void onNanoDisplay() override
     {
         const float W  = static_cast<float>(getWidth());
+        const float H  = static_cast<float>(getHeight());
         const bool  on = fValue >= 0.5f;
 
-        // Track
+        const float trackY = fShowLabels ? 26.0f : (H * 0.5f - 11.0f);
+
         beginPath();
-        roundedRect(10, 26, W - 20, 22, 11.0f);
+        roundedRect(10, trackY, W - 20, 22, 11.0f);
         fillColor(on ? Color(0.20f, 0.50f, 0.30f) : Color(0.18f, 0.18f, 0.20f));
         fill();
         strokeColor(Color(0.08f, 0.08f, 0.09f));
         strokeWidth(1.0f);
         stroke();
 
-        // Thumb
         const float thumbX = on ? W - 30 : 12;
         beginPath();
-        circle(thumbX + 9, 37, 8.0f);
+        circle(thumbX + 9, trackY + 11, 8.0f);
         fillColor(on ? Color(0.85f, 0.95f, 0.80f) : Color(0.55f, 0.55f, 0.58f));
         fill();
 
-        fontFace(NANOVG_DEJAVU_SANS_TTF);
-        fontSize(11.0f);
-        fillColor(Color(0.85f, 0.85f, 0.85f));
-        textAlign(ALIGN_CENTER | ALIGN_TOP);
-        text(W * 0.5f, 8, fProps.short_name ? fProps.short_name : fProps.name, nullptr);
+        if (fShowLabels) {
+            fontFace(NANOVG_DEJAVU_SANS_TTF);
+            fontSize(11.0f);
+            fillColor(Color(0.85f, 0.85f, 0.85f));
+            textAlign(ALIGN_CENTER | ALIGN_TOP);
+            text(W * 0.5f, 8, fProps.short_name ? fProps.short_name : fProps.name, nullptr);
 
-        fontSize(9.0f);
-        fillColor(Color(0.7f, 0.85f, 1.0f));
-        text(W * 0.5f, 60, on ? "ON" : "OFF", nullptr);
+            fontSize(9.0f);
+            fillColor(Color(0.7f, 0.85f, 1.0f));
+            text(W * 0.5f, 60, on ? "ON" : "OFF", nullptr);
+        }
     }
 
     bool onMouse(const MouseEvent& ev) override
@@ -63,6 +68,9 @@ protected:
         setValue(newV, /*notify=*/true);
         return true;
     }
+
+private:
+    bool fShowLabels = true;
 };
 
 END_NAMESPACE_DGL

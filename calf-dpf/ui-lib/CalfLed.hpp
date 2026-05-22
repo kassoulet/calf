@@ -22,12 +22,15 @@ public:
         setSize(72, 96);
     }
 
+    void setShowLabels(bool show) noexcept { fShowLabels = show; }
+
 protected:
     void onNanoDisplay() override
     {
         const float W  = static_cast<float>(getWidth());
+        const float H  = static_cast<float>(getHeight());
         const float cx = W * 0.5f;
-        const float cy = 36.0f;
+        const float cy = fShowLabels ? 36.0f : H * 0.5f;
         const bool  on = fValue >= 0.5f;
 
         // Outer bezel
@@ -50,12 +53,17 @@ protected:
             fill();
         }
 
-        fontFace(NANOVG_DEJAVU_SANS_TTF);
-        fontSize(11.0f);
-        fillColor(Color(0.85f, 0.85f, 0.85f));
-        textAlign(ALIGN_CENTER | ALIGN_TOP);
-        text(cx, 66.0f, fProps.short_name ? fProps.short_name : fProps.name, nullptr);
+        if (fShowLabels) {
+            fontFace(NANOVG_DEJAVU_SANS_TTF);
+            fontSize(11.0f);
+            fillColor(Color(0.85f, 0.85f, 0.85f));
+            textAlign(ALIGN_CENTER | ALIGN_TOP);
+            text(cx, 66.0f, fProps.short_name ? fProps.short_name : fProps.name, nullptr);
+        }
     }
+
+private:
+    bool fShowLabels = true;
 };
 
 END_NAMESPACE_DGL

@@ -19,8 +19,9 @@ DPF_BUILD_DIR  = ../../build
 
 include ../../../dpf/Makefile.plugins.mk
 
-# Splice in our extra flags after DPF sets BUILD_CXX_FLAGS.
-BUILD_CXX_FLAGS += $(BUILD_CXX_FLAGS_EXTRA)
+# Splice in our extra flags after DPF sets BUILD_CXX_FLAGS. Bump to
+# gnu++17 (codegen-emitted UIs use std::make_unique + std::unique_ptr).
+BUILD_CXX_FLAGS += $(BUILD_CXX_FLAGS_EXTRA) -std=gnu++17
 
 TARGETS  = jack
 TARGETS += lv2_sep

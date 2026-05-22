@@ -12,10 +12,11 @@ See `../roadmap.md` for the full plan.
 - `plugins/` — one directory per plugin. Each contains:
   - `DistrhoPluginInfo.h`
   - one DSP `.cpp` (thin adapter forwarding to `dsp/`)
-  - one UI `.cpp` (DGL / NanoVG)
+  - one UI `.cpp` (DGL / NanoVG; codegen-emitted from `gui/gui/*.xml`)
   - a `Makefile`
 - `dsp/` — Calf DSP modules, decoupled from GTK + LV2 SDK.
-- `ui-lib/` — shared DGL widgets (knobs, VU meters, line graphs).
+- `ui-lib/` — shared DGL widgets + `CalfLayout.hpp` packing solver.
+- `tools/` — `xml2ui.py`, the Calf-XML → DPF-UI codegen.
 - `../dpf/` — DISTRHO/DPF git submodule.
 
 ## Build (Hello / sanity check)
@@ -31,10 +32,30 @@ Artifacts land under `calf-dpf/bin/` in the formats listed by `TARGETS`
 ## Status
 
 - [x] Phase 0: scaffolding + hello plugin
-- [ ] Phase 1: DSP decoupling
-- [ ] Phase 2: parameter / MIDI bridge
-- [ ] Phase 3: state bridge
-- [ ] Phase 4: shared UI lib
+- [x] Phase 1: DSP decoupling
+- [x] Phase 2: parameter / MIDI bridge
+- [x] Phase 3: state bridge
+- [ ] Phase 4: shared UI lib *(in progress — knob/vu/led/toggle/combo/label/value done; line-graph stubbed; XML→C++ codegen working for Compressor)*
 - [ ] Phase 5: per-plugin migration
 - [ ] Phase 6: standalone story
 - [ ] Phase 7: validation + release
+
+## XML→C++ codegen
+
+`tools/xml2ui.py` reads a Calf GTK layout XML (`../gui/gui/<name>.xml`)
+and emits one DPF UI subclass. Re-run when an XML file changes; the
+generated `.cpp` is committed so the build stays hermetic.
+
+```sh
+python3 calf-dpf/tools/xml2ui.py gui/gui/compressor.xml \
+    --class-name CompressorUI \
+    --metadata-class compressor_metadata \
+    -o calf-dpf/plugins/Compressor/CompressorUI.cpp
+```
+
+Coverage today: `vbox` / `hbox` / `table` / `frame` / `align` / `scrolled`
+/ `notebook` (rendered as a plain vbox until a real notebook lands) /
+`<if>`. Widgets: knob, vumeter, led, toggle, combo, label, value.
+Line-graph / phase-graph / curve / pattern / tuner / keyboard / scale
+render as a CalfLineGraph stub (empty rect) so layouts compile; real
+widgets land later in Phase 4.
