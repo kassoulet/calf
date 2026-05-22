@@ -39,7 +39,7 @@ INFO_TMPL = """\
 #define DISTRHO_PLUGIN_IS_RT_SAFE   1
 #define DISTRHO_PLUGIN_NUM_INPUTS   {ins}
 #define DISTRHO_PLUGIN_NUM_OUTPUTS  {outs}
-#define DISTRHO_PLUGIN_WANT_MIDI_INPUT 0
+#define DISTRHO_PLUGIN_WANT_MIDI_INPUT {want_midi}
 #define DISTRHO_PLUGIN_WANT_STATE   0
 
 #endif
@@ -76,9 +76,9 @@ protected:
         Plugin::initAudioPort(input, index, port);
     }}
 
-    void run(const float** inputs, float** outputs, uint32_t frames) override
+    {run_signature}
     {{
-        runBlock(inputs, outputs, frames, nullptr, 0);
+        runBlock(inputs, outputs, frames, {midi_args});
     }}
 }};
 
@@ -151,6 +151,13 @@ def main() -> int:
                    default="stereo",
                    help="port shape: stereo=2/2, mono=1/1, mono-to-stereo=1/2, "
                         "sidechain-stereo=4/2 (2 main + 2 sidechain).")
+    p.add_argument("--want-midi", action="store_true",
+                   help="Enable MIDI input; run() takes midiEvents/Count and "
+                        "forwards them to the bridge's MIDI dispatcher.")
+    p.add_argument("--outs", type=int, default=0,
+                   help="Override output channel count (for crossover plugins "
+                        "with 4/6/8 outputs paired into stereo bands). "
+                        "Outputs are grouped as consecutive stereo pairs.")
     p.add_argument("--repo-root", type=Path, default=Path.cwd(),
                    help="repo root (default: cwd)")
     args = p.parse_args()
@@ -169,6 +176,10 @@ def main() -> int:
     else:  # sidechain-stereo
         # 2 main + 2 sidechain = 4 inputs; sidechain ports use a separate group.
         ins, outs, group = 4, 2, "SIDECHAIN_STEREO"
+    if args.outs > 0:
+        outs = args.outs
+        if args.outs != 2:
+            group = "MULTI_STEREO_OUT"  # paired stereo bands on the output side
 
     slug = args.module
     plugins_dir = args.repo_root / "calf-dpf" / "plugins" / args.name
@@ -190,16 +201,35 @@ def main() -> int:
             "            port.groupId = kPortGroupStereo;\n"
             "        }"
         )
+    elif group == "MULTI_STEREO_OUT":
+        # Multi-band crossover: each pair of outputs is one band's stereo
+        # pair. We keep all of them in kPortGroupStereo; hosts can name
+        # them by port symbol. A proper per-band PortGroup is a follow-up.
+        init_port_body = "port.groupId = kPortGroupStereo;"
     else:
         init_port_body = f"port.groupId = {group};"
 
+    if args.want_midi:
+        run_signature = (
+            "void run(const float** inputs, float** outputs, uint32_t frames,\n"
+            "             const MidiEvent* midiEvents, uint32_t midiEventCount) override"
+        )
+        midi_args = "midiEvents, midiEventCount"
+    else:
+        run_signature = (
+            "void run(const float** inputs, float** outputs, uint32_t frames) override"
+        )
+        midi_args = "nullptr, 0"
+
     (plugins_dir / "DistrhoPluginInfo.h").write_text(INFO_TMPL.format(
-        name=args.name, slug=slug, uid=u, ins=ins, outs=outs))
+        name=args.name, slug=slug, uid=u, ins=ins, outs=outs,
+        want_midi=1 if args.want_midi else 0))
     (plugins_dir / f"{args.name}Plugin.cpp").write_text(PLUGIN_TMPL.format(
         name=args.name, module=args.module, header=args.header,
         description=args.description.replace('"', '\\"'),
         u0=u[0], u1=u[1], u2=u[2], u3=u[3],
-        init_port_body=init_port_body))
+        init_port_body=init_port_body,
+        run_signature=run_signature, midi_args=midi_args))
     (plugins_dir / "Makefile").write_text(MAKEFILE_TMPL.format(name=args.name))
 
     # Codegen the UI.

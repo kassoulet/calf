@@ -305,13 +305,19 @@ public:
  * FILTERKLAVIER by Hans Baier 
 **********************************************************************/
 
-class filterclavier_audio_module: 
+class filterclavier_audio_module:
         public filter_module_with_inertia<dsp::biquad_filter_module, filterclavier_metadata>
-{        
+{
+public:
+    // Re-expose the audio_module port arrays so the DPF bridge (and any
+    // external caller) can wire them. They were private under GTK Calf
+    // because only the in-tree LV2 host poked at them; the DPF bridge
+    // does the same job from outside the class.
     using audio_module<filterclavier_metadata>::ins;
     using audio_module<filterclavier_metadata>::outs;
     using audio_module<filterclavier_metadata>::params;
 
+private:
     const float min_gain;
     const float max_gain;
 
