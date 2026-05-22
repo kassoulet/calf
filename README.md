@@ -33,19 +33,27 @@ For details, see `licenses/README_LICENSES.txt` in CALF's source tree.
 
 ## Usage
 
-Once installed there are a couple of manuals available.
+Once installed the plug-ins can be loaded by any LV2 / VST3 / CLAP host.
+For a standalone rack, use [Carla](https://kx.studio/Applications:Carla) —
+the legacy `calfjackhost` has been retired (see
+`calf-dpf/MIGRATION.md`).
 
-- "man calf" displays some general instructions
-- "man calfjackhost" gives some hints on how to use the calf rack application
-- /usr/[local]/share/doc/calf (depending on your installation path) contains a HTML manual on how to use the plug-ins user interface
-- The plug-in manuals can also be accessed via the GUI menus.
+The HTML plug-in manual ships under `/usr/[local]/share/doc/calf`
+(depending on your install prefix) and is also reachable from the
+plug-in UI menus.
 
-## Installation
+## Build
 
-In all cases, looking at [.github/workflows/build.yml](.github/workflows/build.yml) can give you a quick hint how it can be done on the systems which we test.
+Calf is built as DPF plug-ins (LV2 + VST3 + CLAP + JACK standalone).
+There is no CMake / autotools any more — the build is a plain Makefile.
 
-For more information:
+```sh
+git submodule update --init --recursive
+make -C calf-dpf -j$(nproc)
+```
 
-* CMake:    INSTALL
-* Automake: INSTALL-AUTOMAKE  (deprecated!)
+Artifacts land under `calf-dpf/bin/`. See
+[`calf-dpf/README.md`](calf-dpf/README.md) for per-plugin builds, smoke
+tests, and the XML→UI codegen. CI runs the same commands; see
+[.github/workflows/build.yml](.github/workflows/build.yml).
 
