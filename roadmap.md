@@ -18,7 +18,7 @@ opt-in.)
 | 3 — state / configure-vars   | ✅ done  | `configure()` ↔ `setState`/`getState` |
 | 4 — shared UI lib            | ✅ done  | knob / vu / led / toggle / combo / label / value / line-graph widgets, packing solver, XML→C++ codegen, real `CalfLineGraph` via UI-side DSP shadow |
 | 5 — per-plugin migration     | ✅ done  | 51 plugins; every audio_module in `modulelist.h` covered |
-| 6 — standalone story         | ⬜ todo  | decide `calfjackhost` drop vs. keep |
+| 6 — standalone story         | ✅ done  | `calfjackhost` dropped; `calf-dpf/MIGRATION.md` points users at Carla |
 | 7 — validation / release     | 🔶 partial | smoke tests landed (`make smoke`, `make dsp-smoke`); bit-exact null-test vs upstream Calf still TODO |
 
 See `calf-dpf/README.md` for the per-target build commands.
@@ -256,12 +256,15 @@ codegen + scaffold tool:
 `make -C calf-dpf list` enumerates them; the top-level Makefile
 auto-discovers every `plugins/*/Makefile`.
 
-### Phase 6 — Standalone host story (⬜ todo)
-- [ ] Decide: drop `calfjackhost` rack entirely (recommended; DPF
-      standalones cover the single-plugin case) **or** keep it as a
-      separate non-DPF mini-rack that loads DPF plugins via Carla.
-- [ ] If dropped: document migration path for existing rack users
-      (Carla, Ardour, Reaper).
+### Phase 6 — Standalone host story (✅ done)
+- [x] **Drop `calfjackhost`.** Decision rationale + alternatives
+      documented in `calf-dpf/MIGRATION.md`. Carla is the
+      recommended drop-in for users who relied on the rack host.
+      Each calf-dpf plugin still ships its own JACK standalone via
+      DPF (`calf-dpf/bin/Calf<Name>`), so the "one effect on JACK"
+      use case is covered without a rack.
+- [x] LV2 URIs are stable (`https://calf-studio-gear.org/plugins/...`)
+      so existing sessions still resolve.
 
 ### Phase 7 — Validation & release (🔶 partial)
 - [x] **`make smoke`** — launches every JACK standalone briefly,

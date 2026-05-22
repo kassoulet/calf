@@ -5,7 +5,9 @@ DISTRHO Plugin Framework (DPF). It currently lives alongside the legacy
 autotools/CMake tree on the `calf-dpf` branch; it does not yet replace
 anything.
 
-See `../roadmap.md` for the full plan.
+See `../roadmap.md` for the full plan and `MIGRATION.md` for what
+changes from the user's perspective (LV2 URIs are stable; `calfjackhost`
+is dropped — use Carla).
 
 ## Layout
 
