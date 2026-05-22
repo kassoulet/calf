@@ -1,0 +1,194 @@
+#!/usr/bin/env python3
+"""
+scaffold_plugin.py — create a new plugins/<Name>/ directory wired to the
+existing Calf DSP module + bridge + codegen.
+
+Writes DistrhoPluginInfo.h, <Name>Plugin.cpp (CalfPluginBase adapter),
+Makefile, and invokes xml2ui.py to produce <Name>UI.cpp. The four files
+together are everything a stable, no-graph, no-state effect needs.
+
+Usage:
+    scaffold_plugin.py --name Saturator --module saturator \\
+        --header calf/modules_dist.h --xml saturator \\
+        --unique-id cSat --description "..." --inout stereo
+
+Run from repo root.
+"""
+from __future__ import annotations
+
+import argparse
+import subprocess
+import sys
+from pathlib import Path
+
+
+INFO_TMPL = """\
+#ifndef DISTRHO_PLUGIN_INFO_H_INCLUDED
+#define DISTRHO_PLUGIN_INFO_H_INCLUDED
+
+#define DISTRHO_PLUGIN_BRAND   "Calf"
+#define DISTRHO_PLUGIN_NAME    "{name}"
+#define DISTRHO_PLUGIN_URI     "https://calf-studio-gear.org/plugins/{slug}"
+#define DISTRHO_PLUGIN_CLAP_ID "org.calf-studio-gear.{slug}"
+
+#define DISTRHO_PLUGIN_BRAND_ID  Calf
+#define DISTRHO_PLUGIN_UNIQUE_ID {uid}
+
+#define DISTRHO_PLUGIN_HAS_UI       1
+#define DISTRHO_UI_USE_NANOVG       1
+#define DISTRHO_PLUGIN_IS_RT_SAFE   1
+#define DISTRHO_PLUGIN_NUM_INPUTS   {ins}
+#define DISTRHO_PLUGIN_NUM_OUTPUTS  {outs}
+#define DISTRHO_PLUGIN_WANT_MIDI_INPUT 0
+#define DISTRHO_PLUGIN_WANT_STATE   0
+
+#endif
+"""
+
+PLUGIN_TMPL = """\
+/*
+ * Calf {name} — DPF adapter. DSP and metadata from libcalfdsp.a.
+ */
+#include "CalfDpfBridge.hpp"
+#include <{header}>
+
+START_NAMESPACE_DISTRHO
+
+class Calf{name}Plugin
+    : public calf_dpf::CalfPluginBase<calf_plugins::{module}_audio_module>
+{{
+public:
+    Calf{name}Plugin() = default;
+
+protected:
+    const char* getDescription() const override
+    {{
+        return "{description}";
+    }}
+    int64_t getUniqueId() const override
+    {{
+        return d_cconst('{u0}', '{u1}', '{u2}', '{u3}');
+    }}
+
+    void initAudioPort(bool input, uint32_t index, AudioPort& port) override
+    {{
+        port.groupId = {port_group};
+        Plugin::initAudioPort(input, index, port);
+    }}
+
+    void run(const float** inputs, float** outputs, uint32_t frames) override
+    {{
+        runBlock(inputs, outputs, frames, nullptr, 0);
+    }}
+}};
+
+Plugin* createPlugin() {{ return new Calf{name}Plugin(); }}
+
+END_NAMESPACE_DISTRHO
+"""
+
+MAKEFILE_TMPL = """\
+#!/usr/bin/make -f
+
+NAME = Calf{name}
+
+FILES_DSP = {name}Plugin.cpp
+FILES_UI  = {name}UI.cpp
+
+CALF_DSP_DIR  = ../../dsp
+CALF_BRIDGE   = ../../bridge
+CALF_UILIB    = ../../ui-lib
+BUILD_CXX_FLAGS_EXTRA  = -I$(CALF_DSP_DIR)/include -I$(CALF_DSP_DIR) -I$(CALF_BRIDGE) -I$(CALF_UILIB)
+BUILD_CXX_FLAGS_EXTRA += $(shell pkg-config --cflags fluidsynth expat)
+EXTRA_DSP_LIBS = $(CALF_DSP_DIR)/libcalfdsp.a $(shell pkg-config --libs fluidsynth expat) -lpthread
+EXTRA_UI_LIBS  = $(CALF_DSP_DIR)/libcalfdsp.a $(shell pkg-config --libs fluidsynth expat) -lpthread
+
+DPF_TARGET_DIR = ../../bin
+DPF_BUILD_DIR  = ../../build
+
+include ../../../dpf/Makefile.plugins.mk
+
+BUILD_CXX_FLAGS += $(BUILD_CXX_FLAGS_EXTRA) -std=gnu++17
+
+TARGETS  = jack
+TARGETS += lv2_sep
+TARGETS += vst3
+TARGETS += clap
+
+DPF_DIR = ../../../dpf
+LV2_GEN = $(DPF_DIR)/utils/lv2_ttl_generator
+
+all: dspdep $(TARGETS) lv2_ttl
+
+dspdep:
+\t$(MAKE) -C $(CALF_DSP_DIR)
+
+$(LV2_GEN):
+\t$(MAKE) -C $(DPF_DIR)/utils/lv2-ttl-generator
+
+lv2_ttl: $(LV2_GEN) lv2_dsp
+\tcd ../.. && ../dpf/utils/generate-ttl.sh bin
+
+.PHONY: lv2_ttl dspdep
+"""
+
+
+def main() -> int:
+    p = argparse.ArgumentParser()
+    p.add_argument("--name", required=True,
+                   help="Plugin display name, CamelCase (e.g. Saturator)")
+    p.add_argument("--module", required=True,
+                   help="C++ module class root, lower (e.g. saturator)")
+    p.add_argument("--header", default="calf/audio_fx.h",
+                   help="Header that declares <module>_audio_module")
+    p.add_argument("--xml", required=True,
+                   help="gui/gui/<xml>.xml basename (without extension)")
+    p.add_argument("--unique-id", required=True,
+                   help="4-character unique ID (e.g. cSat)")
+    p.add_argument("--description", required=True)
+    p.add_argument("--inout", choices=("stereo", "mono"), default="stereo")
+    p.add_argument("--repo-root", type=Path, default=Path.cwd(),
+                   help="repo root (default: cwd)")
+    args = p.parse_args()
+
+    if len(args.unique_id) != 4:
+        print("error: --unique-id must be 4 characters", file=sys.stderr)
+        return 2
+
+    if args.inout == "stereo":
+        ins, outs, group = 2, 2, "kPortGroupStereo"
+    else:
+        ins, outs, group = 1, 1, "kPortGroupMono"
+
+    slug = args.module
+    plugins_dir = args.repo_root / "calf-dpf" / "plugins" / args.name
+    plugins_dir.mkdir(parents=True, exist_ok=True)
+
+    u = args.unique_id
+
+    (plugins_dir / "DistrhoPluginInfo.h").write_text(INFO_TMPL.format(
+        name=args.name, slug=slug, uid=u, ins=ins, outs=outs))
+    (plugins_dir / f"{args.name}Plugin.cpp").write_text(PLUGIN_TMPL.format(
+        name=args.name, module=args.module, header=args.header,
+        description=args.description.replace('"', '\\"'),
+        u0=u[0], u1=u[1], u2=u[2], u3=u[3],
+        port_group=group))
+    (plugins_dir / "Makefile").write_text(MAKEFILE_TMPL.format(name=args.name))
+
+    # Codegen the UI.
+    xml_path = args.repo_root / "gui" / "gui" / f"{args.xml}.xml"
+    ui_out   = plugins_dir / f"{args.name}UI.cpp"
+    subprocess.check_call([
+        sys.executable,
+        str(args.repo_root / "calf-dpf" / "tools" / "xml2ui.py"),
+        str(xml_path),
+        "--class-name",      f"{args.name}UI",
+        "--metadata-class",  f"{args.module}_metadata",
+        "-o", str(ui_out),
+    ])
+    print(f"scaffolded {args.name} in {plugins_dir}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

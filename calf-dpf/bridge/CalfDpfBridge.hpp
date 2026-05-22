@@ -79,17 +79,22 @@ inline void init_parameter(Parameter& parameter,
     parameter.ranges.max = pp.max;
 
     if (type == PF_ENUM && pp.choices) {
-        uint8_t count = 0;
-        for (const char** p = pp.choices; *p; ++p) ++count;
-        ParameterEnumerationValue* vals = new ParameterEnumerationValue[count];
-        for (uint8_t i = 0; i < count; ++i) {
-            vals[i].value = static_cast<float>(i) + pp.min;
-            vals[i].label = pp.choices[i];
+        // Calf's choice arrays are NOT consistently null-terminated — some
+        // (e.g. crusher_mode_names) end at the last real entry. The legacy
+        // GTK code derived the count from min/max, so do the same here.
+        const int range = static_cast<int>(pp.max - pp.min) + 1;
+        const uint8_t count = range > 0 ? static_cast<uint8_t>(range) : 0;
+        if (count > 0) {
+            ParameterEnumerationValue* vals = new ParameterEnumerationValue[count];
+            for (uint8_t i = 0; i < count; ++i) {
+                vals[i].value = static_cast<float>(i) + pp.min;
+                vals[i].label = pp.choices[i] ? pp.choices[i] : "";
+            }
+            parameter.enumValues.count          = count;
+            parameter.enumValues.values         = vals;
+            parameter.enumValues.restrictedMode = true;
+            parameter.enumValues.deleteLater    = true;
         }
-        parameter.enumValues.count          = count;
-        parameter.enumValues.values         = vals;
-        parameter.enumValues.restrictedMode = true;
-        parameter.enumValues.deleteLater    = true;
     }
 }
 
