@@ -115,6 +115,7 @@ public:
                 fByIndex[_resolve("bypass")].push_back(w_13);
                 c_2->add(std::make_unique<CalfWidgetItem>(w_13), CalfPacking{.expandX=false, .expandY=true, .fillX=true, .fillY=true, .attachX=4});
                 auto* w_14 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass")), _resolve("bypass"));
+                w_14->setIcon("bypass");
                 w_14->setShowLabels(false);
                 fWidgets.emplace_back(w_14);
                 fByIndex[_resolve("bypass")].push_back(w_14);
@@ -123,6 +124,7 @@ public:
                 fWidgets.emplace_back(w_15);
                 c_2->add(std::make_unique<CalfWidgetItem>(w_15), CalfPacking{.expandX=false, .expandY=true, .fillX=true, .fillY=true, .attachX=3});
                 auto* w_16 = new CalfToggle(this, *meta.get_param_props(_resolve("m_phase")), _resolve("m_phase"));
+                w_16->setIcon("phase");
                 w_16->setShowLabels(false);
                 fWidgets.emplace_back(w_16);
                 fByIndex[_resolve("m_phase")].push_back(w_16);
@@ -186,6 +188,7 @@ public:
                                 fWidgets.emplace_back(w_33);
                                 c_32->add(std::make_unique<CalfWidgetItem>(w_33), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                 auto* w_34 = new CalfToggle(this, *meta.get_param_props(_resolve("s_phase1")), _resolve("s_phase1"));
+                                w_34->setIcon("phase");
                                 w_34->setShowLabels(false);
                                 fWidgets.emplace_back(w_34);
                                 fByIndex[_resolve("s_phase1")].push_back(w_34);
@@ -345,6 +348,7 @@ public:
                                 fWidgets.emplace_back(w_73);
                                 c_72->add(std::make_unique<CalfWidgetItem>(w_73), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                 auto* w_74 = new CalfToggle(this, *meta.get_param_props(_resolve("s_phase2")), _resolve("s_phase2"));
+                                w_74->setIcon("phase");
                                 w_74->setShowLabels(false);
                                 fWidgets.emplace_back(w_74);
                                 fByIndex[_resolve("s_phase2")].push_back(w_74);

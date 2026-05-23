@@ -114,6 +114,7 @@ public:
                                 fByIndex[_resolve("bypass")].push_back(w_16);
                                 c_15->add(std::make_unique<CalfWidgetItem>(w_16), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                 auto* w_17 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass")), _resolve("bypass"));
+                                w_17->setIcon("bypass");
                                 w_17->setShowLabels(false);
                                 fWidgets.emplace_back(w_17);
                                 fByIndex[_resolve("bypass")].push_back(w_17);
@@ -123,6 +124,7 @@ public:
                             {
                                 auto c_18 = std::make_unique<CalfBoxItem>(CalfBoxItem::VERTICAL, 5, false);
                                 auto* w_19 = new CalfToggle(this, *meta.get_param_props(_resolve("softclip")), _resolve("softclip"));
+                                w_19->setIcon("softclip");
                                 w_19->setShowLabels(false);
                                 fWidgets.emplace_back(w_19);
                                 fByIndex[_resolve("softclip")].push_back(w_19);
@@ -179,6 +181,7 @@ public:
                             fByIndex[_resolve("mutel")].push_back(w_32);
                             c_31->add(std::make_unique<CalfWidgetItem>(w_32), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                             auto* w_33 = new CalfToggle(this, *meta.get_param_props(_resolve("mutel")), _resolve("mutel"));
+                            w_33->setIcon("mute");
                             w_33->setShowLabels(false);
                             fWidgets.emplace_back(w_33);
                             fByIndex[_resolve("mutel")].push_back(w_33);
@@ -188,6 +191,7 @@ public:
                         {
                             auto c_34 = std::make_unique<CalfBoxItem>(CalfBoxItem::VERTICAL, 0, false);
                             auto* w_35 = new CalfToggle(this, *meta.get_param_props(_resolve("phasel")), _resolve("phasel"));
+                            w_35->setIcon("phase");
                             w_35->setShowLabels(false);
                             fWidgets.emplace_back(w_35);
                             fByIndex[_resolve("phasel")].push_back(w_35);
@@ -220,6 +224,7 @@ public:
                             fByIndex[_resolve("muter")].push_back(w_43);
                             c_42->add(std::make_unique<CalfWidgetItem>(w_43), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                             auto* w_44 = new CalfToggle(this, *meta.get_param_props(_resolve("muter")), _resolve("muter"));
+                            w_44->setIcon("mute");
                             w_44->setShowLabels(false);
                             fWidgets.emplace_back(w_44);
                             fByIndex[_resolve("muter")].push_back(w_44);
@@ -229,6 +234,7 @@ public:
                         {
                             auto c_45 = std::make_unique<CalfBoxItem>(CalfBoxItem::VERTICAL, 0, false);
                             auto* w_46 = new CalfToggle(this, *meta.get_param_props(_resolve("phaser")), _resolve("phaser"));
+                            w_46->setIcon("phase");
                             w_46->setShowLabels(false);
                             fWidgets.emplace_back(w_46);
                             fByIndex[_resolve("phaser")].push_back(w_46);

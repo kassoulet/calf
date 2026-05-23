@@ -9,6 +9,7 @@
 #define CALF_COMBO_BOX_HPP
 
 #include "CalfWidgetBase.hpp"
+#include "CalfTheme.hpp"
 #include <cmath>
 
 START_NAMESPACE_DGL
@@ -19,7 +20,8 @@ public:
     CalfComboBox(NanoTopLevelWidget* parent,
                  const calf_plugins::parameter_properties& props,
                  uint32_t paramIndex)
-        : CalfWidgetBase(parent, props, paramIndex)
+        : CalfWidgetBase(parent, props, paramIndex),
+          fTheme(*static_cast<NanoVG*>(this))
     {
         setSize(72, 96);
         fCount = 0;
@@ -36,21 +38,38 @@ protected:
         const float H = static_cast<float>(getHeight());
         const float frameY = fShowLabels ? 28.0f : (H * 0.5f - 13.0f);
 
+        // Recessed control with subtle inner gradient.
         beginPath();
         roundedRect(4, frameY, W - 8, 26, 3.0f);
-        fillColor(Color(0.16f, 0.16f, 0.18f));
+        fillPaint(linearGradient(4, frameY, 4, frameY + 26,
+                                 Color(0.10f, 0.10f, 0.12f),
+                                 Color(0.20f, 0.22f, 0.26f)));
         fill();
-        strokeColor(Color(0.40f, 0.40f, 0.45f));
+        strokeColor(Color(0.04f, 0.04f, 0.05f));
         strokeWidth(1.0f);
         stroke();
 
-        beginPath();
-        moveTo(W - 14, frameY + 10);
-        lineTo(W - 8,  frameY + 10);
-        lineTo(W - 11, frameY + 16);
-        closePath();
-        fillColor(Color(0.85f, 0.85f, 0.85f));
-        fill();
+        // Themed arrow on the right edge; falls back to a vector
+        // triangle if the asset failed to embed.
+        NanoImage* arrow = fTheme.image("combo_arrow.png");
+        if (arrow && arrow->isValid()) {
+            const float aw = 16.0f;
+            const float ah = 13.0f;
+            const float ax = W - 8.0f - aw;
+            const float ay = frameY + (26.0f - ah) * 0.5f;
+            beginPath();
+            rect(ax, ay, aw, ah);
+            fillPaint(imagePattern(ax, ay, aw, ah, 0.0f, *arrow, 1.0f));
+            fill();
+        } else {
+            beginPath();
+            moveTo(W - 14, frameY + 10);
+            lineTo(W - 8,  frameY + 10);
+            lineTo(W - 11, frameY + 16);
+            closePath();
+            fillColor(Color(0.85f, 0.85f, 0.85f));
+            fill();
+        }
 
         const int idx = static_cast<int>(std::round(fValue - fProps.min));
         const char* label = (fProps.choices && idx >= 0 && idx < fCount)
@@ -95,6 +114,7 @@ private:
         setValue(fProps.min + static_cast<float>(idx), /*notify=*/true);
     }
 
+    CalfTheme fTheme;
     int  fCount;
     bool fShowLabels = true;
 };

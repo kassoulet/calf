@@ -115,6 +115,7 @@ public:
                 fByIndex[_resolve("bypass")].push_back(w_13);
                 c_2->add(std::make_unique<CalfWidgetItem>(w_13), CalfPacking{.expandX=false, .expandY=true, .fillX=true, .fillY=true, .attachX=3});
                 auto* w_14 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass")), _resolve("bypass"));
+                w_14->setIcon("bypass");
                 w_14->setShowLabels(false);
                 fWidgets.emplace_back(w_14);
                 fByIndex[_resolve("bypass")].push_back(w_14);
@@ -195,6 +196,7 @@ public:
                         fByIndex[_resolve("bypass0")].push_back(w_33);
                         c_32->add(std::make_unique<CalfWidgetItem>(w_33), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                         auto* w_34 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass0")), _resolve("bypass0"));
+                        w_34->setIcon("bypass");
                         w_34->setShowLabels(false);
                         fWidgets.emplace_back(w_34);
                         fByIndex[_resolve("bypass0")].push_back(w_34);
@@ -211,6 +213,7 @@ public:
                         fByIndex[_resolve("solo0")].push_back(w_37);
                         c_36->add(std::make_unique<CalfWidgetItem>(w_37), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                         auto* w_38 = new CalfToggle(this, *meta.get_param_props(_resolve("solo0")), _resolve("solo0"));
+                        w_38->setIcon("solo");
                         w_38->setShowLabels(false);
                         fWidgets.emplace_back(w_38);
                         fByIndex[_resolve("solo0")].push_back(w_38);
@@ -366,6 +369,7 @@ public:
                         fByIndex[_resolve("bypass1")].push_back(w_74);
                         c_73->add(std::make_unique<CalfWidgetItem>(w_74), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                         auto* w_75 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass1")), _resolve("bypass1"));
+                        w_75->setIcon("bypass");
                         w_75->setShowLabels(false);
                         fWidgets.emplace_back(w_75);
                         fByIndex[_resolve("bypass1")].push_back(w_75);
@@ -382,6 +386,7 @@ public:
                         fByIndex[_resolve("solo1")].push_back(w_78);
                         c_77->add(std::make_unique<CalfWidgetItem>(w_78), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                         auto* w_79 = new CalfToggle(this, *meta.get_param_props(_resolve("solo1")), _resolve("solo1"));
+                        w_79->setIcon("solo");
                         w_79->setShowLabels(false);
                         fWidgets.emplace_back(w_79);
                         fByIndex[_resolve("solo1")].push_back(w_79);
@@ -537,6 +542,7 @@ public:
                         fByIndex[_resolve("bypass2")].push_back(w_115);
                         c_114->add(std::make_unique<CalfWidgetItem>(w_115), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                         auto* w_116 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass2")), _resolve("bypass2"));
+                        w_116->setIcon("bypass");
                         w_116->setShowLabels(false);
                         fWidgets.emplace_back(w_116);
                         fByIndex[_resolve("bypass2")].push_back(w_116);
@@ -553,6 +559,7 @@ public:
                         fByIndex[_resolve("solo2")].push_back(w_119);
                         c_118->add(std::make_unique<CalfWidgetItem>(w_119), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                         auto* w_120 = new CalfToggle(this, *meta.get_param_props(_resolve("solo2")), _resolve("solo2"));
+                        w_120->setIcon("solo");
                         w_120->setShowLabels(false);
                         fWidgets.emplace_back(w_120);
                         fByIndex[_resolve("solo2")].push_back(w_120);
@@ -708,6 +715,7 @@ public:
                         fByIndex[_resolve("bypass3")].push_back(w_156);
                         c_155->add(std::make_unique<CalfWidgetItem>(w_156), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                         auto* w_157 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass3")), _resolve("bypass3"));
+                        w_157->setIcon("bypass");
                         w_157->setShowLabels(false);
                         fWidgets.emplace_back(w_157);
                         fByIndex[_resolve("bypass3")].push_back(w_157);
@@ -724,6 +732,7 @@ public:
                         fByIndex[_resolve("solo3")].push_back(w_160);
                         c_159->add(std::make_unique<CalfWidgetItem>(w_160), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                         auto* w_161 = new CalfToggle(this, *meta.get_param_props(_resolve("solo3")), _resolve("solo3"));
+                        w_161->setIcon("solo");
                         w_161->setShowLabels(false);
                         fWidgets.emplace_back(w_161);
                         fByIndex[_resolve("solo3")].push_back(w_161);

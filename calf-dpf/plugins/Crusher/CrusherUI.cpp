@@ -113,6 +113,7 @@ public:
                 fByIndex[_resolve("bypass")].push_back(w_13);
                 c_2->add(std::make_unique<CalfWidgetItem>(w_13), CalfPacking{.expandX=false, .expandY=true, .fillX=true, .fillY=true, .attachX=3});
                 auto* w_14 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass")), _resolve("bypass"));
+                w_14->setIcon("bypass");
                 w_14->setShowLabels(false);
                 fWidgets.emplace_back(w_14);
                 fByIndex[_resolve("bypass")].push_back(w_14);
@@ -258,6 +259,7 @@ public:
                                 fWidgets.emplace_back(w_50);
                                 c_49->add(std::make_unique<CalfWidgetItem>(w_50), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                 auto* w_51 = new CalfToggle(this, *meta.get_param_props(_resolve("mode")), _resolve("mode"));
+                                w_51->setIcon("logarithmic");
                                 w_51->setShowLabels(false);
                                 fWidgets.emplace_back(w_51);
                                 fByIndex[_resolve("mode")].push_back(w_51);

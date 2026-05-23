@@ -70,6 +70,7 @@ public:
                 fByIndex[_resolve("bypass")].push_back(w_3);
                 c_2->add(std::make_unique<CalfWidgetItem>(w_3), CalfPacking{.expandX=false, .expandY=true, .fillX=true, .fillY=true});
                 auto* w_4 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass")), _resolve("bypass"));
+                w_4->setIcon("bypass");
                 w_4->setShowLabels(false);
                 fWidgets.emplace_back(w_4);
                 fByIndex[_resolve("bypass")].push_back(w_4);
@@ -245,6 +246,7 @@ public:
                             {
                                 auto c_47 = std::make_unique<CalfBoxItem>(CalfBoxItem::VERTICAL, 0, false);
                                 auto* w_48 = new CalfToggle(this, *meta.get_param_props(_resolve("post")), _resolve("post"));
+                                w_48->setIcon("muffle");
                                 w_48->setShowLabels(false);
                                 fWidgets.emplace_back(w_48);
                                 fByIndex[_resolve("post")].push_back(w_48);
@@ -257,6 +259,7 @@ public:
                             {
                                 auto c_50 = std::make_unique<CalfBoxItem>(CalfBoxItem::VERTICAL, 0, false);
                                 auto* w_51 = new CalfToggle(this, *meta.get_param_props(_resolve("magnetical")), _resolve("magnetical"));
+                                w_51->setIcon("magnetical");
                                 w_51->setShowLabels(false);
                                 fWidgets.emplace_back(w_51);
                                 fByIndex[_resolve("magnetical")].push_back(w_51);
@@ -269,6 +272,7 @@ public:
                             {
                                 auto c_53 = std::make_unique<CalfBoxItem>(CalfBoxItem::VERTICAL, 0, false);
                                 auto* w_54 = new CalfToggle(this, *meta.get_param_props(_resolve("speed")), _resolve("speed"));
+                                w_54->setIcon("fast");
                                 w_54->setShowLabels(false);
                                 fWidgets.emplace_back(w_54);
                                 fByIndex[_resolve("speed")].push_back(w_54);

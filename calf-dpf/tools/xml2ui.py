@@ -202,6 +202,14 @@ def emit_widget(em: Emitter, elem: ET.Element) -> Optional[str]:
         if sz_attr is not None:
             em.emit(f"{var}->setKnobSize({int(sz_attr)});")
 
+    # GTK toggle icon hint (icon="bypass", icon="mute", …) maps to the
+    # matching `toggle_2_<icon>.png` asset; CalfToggle falls back to
+    # the generic toggle bitmap if the named one isn't embedded.
+    if cls == "CalfToggle":
+        icon = elem.attrib.get("icon")
+        if icon:
+            em.emit(f'{var}->setIcon("{icon}");')
+
     # Explicit width/height attrs (line-graph etc.)
     w_attr = elem.attrib.get("width")
     h_attr = elem.attrib.get("height")

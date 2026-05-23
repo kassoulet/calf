@@ -115,6 +115,7 @@ public:
                 fByIndex[_resolve("bypass")].push_back(w_13);
                 c_2->add(std::make_unique<CalfWidgetItem>(w_13), CalfPacking{.expandX=false, .expandY=true, .fillX=true, .fillY=true, .attachX=3});
                 auto* w_14 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass")), _resolve("bypass"));
+                w_14->setIcon("bypass");
                 w_14->setShowLabels(false);
                 fWidgets.emplace_back(w_14);
                 fByIndex[_resolve("bypass")].push_back(w_14);
@@ -366,6 +367,7 @@ public:
                         fByIndex[_resolve("mod_amount")].push_back(w_77);
                         c_59->add(std::make_unique<CalfWidgetItem>(w_77), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true, .attachX=2, .attachY=3});
                         auto* w_78 = new CalfToggle(this, *meta.get_param_props(_resolve("mod_listen")), _resolve("mod_listen"));
+                        w_78->setIcon("listen");
                         w_78->setShowLabels(false);
                         fWidgets.emplace_back(w_78);
                         fByIndex[_resolve("mod_listen")].push_back(w_78);

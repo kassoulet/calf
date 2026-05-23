@@ -309,6 +309,7 @@ public:
                 {
                     auto c_60 = std::make_unique<CalfBoxItem>(CalfBoxItem::VERTICAL, 0, false);
                     auto* w_61 = new CalfToggle(this, *meta.get_param_props(_resolve("lfo")), _resolve("lfo"));
+                    w_61->setIcon("pauseplay");
                     w_61->setShowLabels(false);
                     fWidgets.emplace_back(w_61);
                     fByIndex[_resolve("lfo")].push_back(w_61);

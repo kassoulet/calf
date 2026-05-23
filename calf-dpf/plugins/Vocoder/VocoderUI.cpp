@@ -221,6 +221,7 @@ public:
                 {
                     auto c_42 = std::make_unique<CalfBoxItem>(CalfBoxItem::VERTICAL, 0, false);
                     auto* w_43 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass")), _resolve("bypass"));
+                    w_43->setIcon("bypass");
                     w_43->setShowLabels(false);
                     fWidgets.emplace_back(w_43);
                     fByIndex[_resolve("bypass")].push_back(w_43);

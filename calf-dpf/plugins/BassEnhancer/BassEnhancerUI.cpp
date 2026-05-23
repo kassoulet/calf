@@ -70,6 +70,7 @@ public:
                 fByIndex[_resolve("bypass")].push_back(w_3);
                 c_2->add(std::make_unique<CalfWidgetItem>(w_3), CalfPacking{.expandX=false, .expandY=true, .fillX=false, .fillY=true});
                 auto* w_4 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass")), _resolve("bypass"));
+                w_4->setIcon("bypass");
                 w_4->setShowLabels(false);
                 fWidgets.emplace_back(w_4);
                 fByIndex[_resolve("bypass")].push_back(w_4);
@@ -154,6 +155,7 @@ public:
                 fByIndex[_resolve("listen")].push_back(w_22);
                 c_2->add(std::make_unique<CalfWidgetItem>(w_22), CalfPacking{.expandX=false, .expandY=true, .fillX=false, .fillY=true, .attachX=6});
                 auto* w_23 = new CalfToggle(this, *meta.get_param_props(_resolve("listen")), _resolve("listen"));
+                w_23->setIcon("listen");
                 w_23->setShowLabels(false);
                 fWidgets.emplace_back(w_23);
                 fByIndex[_resolve("listen")].push_back(w_23);

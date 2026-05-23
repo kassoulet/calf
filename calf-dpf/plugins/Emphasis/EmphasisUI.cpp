@@ -132,6 +132,7 @@ public:
                     fByIndex[_resolve("bypass")].push_back(w_18);
                     c_17->add(std::make_unique<CalfWidgetItem>(w_18), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                     auto* w_19 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass")), _resolve("bypass"));
+                    w_19->setIcon("bypass");
                     w_19->setShowLabels(false);
                     fWidgets.emplace_back(w_19);
                     fByIndex[_resolve("bypass")].push_back(w_19);

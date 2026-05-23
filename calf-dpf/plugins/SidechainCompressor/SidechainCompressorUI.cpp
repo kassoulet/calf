@@ -76,6 +76,7 @@ public:
                     {
                         auto c_6 = std::make_unique<CalfBoxItem>(CalfBoxItem::VERTICAL, 0, false);
                         auto* w_7 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass")), _resolve("bypass"));
+                        w_7->setIcon("bypass");
                         w_7->setShowLabels(false);
                         fWidgets.emplace_back(w_7);
                         fByIndex[_resolve("bypass")].push_back(w_7);
@@ -282,6 +283,7 @@ public:
                             fWidgets.emplace_back(w_56);
                             c_55->add(std::make_unique<CalfWidgetItem>(w_56), CalfPacking{.expandX=false, .expandY=false, .fillX=false, .fillY=false});
                             auto* w_57 = new CalfToggle(this, *meta.get_param_props(_resolve("sc_route")), _resolve("sc_route"));
+                            w_57->setIcon("sc_comp");
                             w_57->setShowLabels(false);
                             fWidgets.emplace_back(w_57);
                             fByIndex[_resolve("sc_route")].push_back(w_57);
@@ -314,6 +316,7 @@ public:
                             fWidgets.emplace_back(w_64);
                             c_63->add(std::make_unique<CalfWidgetItem>(w_64), CalfPacking{.expandX=false, .expandY=false, .fillX=false, .fillY=false});
                             auto* w_65 = new CalfToggle(this, *meta.get_param_props(_resolve("sc_listen")), _resolve("sc_listen"));
+                            w_65->setIcon("listen");
                             w_65->setShowLabels(false);
                             fWidgets.emplace_back(w_65);
                             fByIndex[_resolve("sc_listen")].push_back(w_65);

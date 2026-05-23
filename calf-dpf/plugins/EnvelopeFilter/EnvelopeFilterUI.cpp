@@ -115,6 +115,7 @@ public:
                 fByIndex[_resolve("bypass")].push_back(w_13);
                 c_2->add(std::make_unique<CalfWidgetItem>(w_13), CalfPacking{.expandX=false, .expandY=true, .fillX=true, .fillY=true, .attachX=4});
                 auto* w_14 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass")), _resolve("bypass"));
+                w_14->setIcon("bypass");
                 w_14->setShowLabels(false);
                 fWidgets.emplace_back(w_14);
                 fByIndex[_resolve("bypass")].push_back(w_14);
@@ -124,6 +125,7 @@ public:
                 fByIndex[_resolve("sidechain_enable")].push_back(w_15);
                 c_2->add(std::make_unique<CalfWidgetItem>(w_15), CalfPacking{.expandX=false, .expandY=true, .fillX=true, .fillY=true, .attachX=5});
                 auto* w_16 = new CalfToggle(this, *meta.get_param_props(_resolve("sidechain_enable")), _resolve("sidechain_enable"));
+                w_16->setIcon("sc_filter");
                 w_16->setShowLabels(false);
                 fWidgets.emplace_back(w_16);
                 fByIndex[_resolve("sidechain_enable")].push_back(w_16);

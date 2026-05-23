@@ -44,40 +44,70 @@ protected:
         const float barW = std::max(0.0f, W - 8.0f);
         const float barH = std::max(0.0f, H - topReserve - botReserve);
 
+        // Recessed bezel: dark gradient + subtle outer rim. Mirrors the
+        // legacy GTK look where the meter sits in a sunken panel.
         beginPath();
-        rect(barX, barY, barW, barH);
-        fillColor(Color(0.08f, 0.08f, 0.09f));
+        roundedRect(barX, barY, barW, barH, 2.0f);
+        fillPaint(linearGradient(barX, barY, barX, barY + barH,
+                                 Color(0.04f, 0.04f, 0.05f),
+                                 Color(0.10f, 0.10f, 0.12f)));
         fill();
+        beginPath();
+        roundedRect(barX + 0.5f, barY + 0.5f, barW - 1.0f, barH - 1.0f, 2.0f);
+        strokeColor(Color(0.0f, 0.0f, 0.0f, 0.6f));
+        strokeWidth(1.0f);
+        stroke();
 
         double pos = fProps.to_01(fValue);
         if (pos < 0.0) pos = 0.0;
         if (pos > 1.0) pos = 1.0;
         if (fReverse) pos = 1.0 - pos;
         const float innerW = std::max(0.0f, barW - 4.0f);
+        const float innerH = std::max(0.0f, barH - 4.0f);
         const float fillW  = static_cast<float>(pos) * innerW;
 
         if (fillW > 0.5f) {
-            const float green  = std::min(fillW, innerW * 0.6f);
-            const float yellow = std::min(fillW, innerW * 0.8f) - green;
-            const float red    = fillW - green - yellow;
-
+            // Continuous LED-style gradient: green → yellow → red over
+            // the whole 0..1 span, then scissored to the actual fillW.
+            // imagePattern-less linear gradient gives that backlit look
+            // without needing a dedicated PNG strip.
+            const float gx = barX + 2;
+            const float gy = barY + 2;
             beginPath();
-            rect(barX + 2, barY + 2, green, std::max(0.0f, barH - 4.0f));
-            fillColor(Color(0.40f, 0.85f, 0.30f));
+            rect(gx, gy, fillW, innerH);
+            // Two-stop NanoVG gradients only, so paint three overlapping
+            // segments to fake the three-stop ramp.
+            const float green  = std::min(fillW, innerW * 0.6f);
+            const float yellow = std::min(fillW, innerW * 0.8f) - std::min(fillW, innerW * 0.6f);
+            const float red    = fillW - std::min(fillW, innerW * 0.8f);
+            fillPaint(linearGradient(gx, gy, gx + green, gy,
+                                     Color(0.18f, 0.55f, 0.20f),
+                                     Color(0.55f, 0.95f, 0.40f)));
             fill();
-
             if (yellow > 0) {
                 beginPath();
-                rect(barX + 2 + green, barY + 2, yellow, std::max(0.0f, barH - 4.0f));
-                fillColor(Color(0.95f, 0.80f, 0.20f));
+                rect(gx + green, gy, yellow, innerH);
+                fillPaint(linearGradient(gx + green, gy, gx + green + yellow, gy,
+                                         Color(0.85f, 0.75f, 0.20f),
+                                         Color(0.98f, 0.90f, 0.35f)));
                 fill();
             }
             if (red > 0) {
                 beginPath();
-                rect(barX + 2 + green + yellow, barY + 2, red, std::max(0.0f, barH - 4.0f));
-                fillColor(Color(0.95f, 0.30f, 0.20f));
+                rect(gx + green + yellow, gy, red, innerH);
+                fillPaint(linearGradient(gx + green + yellow, gy, gx + fillW, gy,
+                                         Color(0.85f, 0.20f, 0.12f),
+                                         Color(1.0f, 0.45f, 0.30f)));
                 fill();
             }
+
+            // Glass highlight across the top third of the filled band.
+            beginPath();
+            rect(gx, gy, fillW, innerH * 0.45f);
+            fillPaint(linearGradient(gx, gy, gx, gy + innerH * 0.45f,
+                                     Color(1.0f, 1.0f, 1.0f, 0.28f),
+                                     Color(1.0f, 1.0f, 1.0f, 0.0f)));
+            fill();
         }
 
         if (fShowLabels) {

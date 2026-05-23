@@ -115,6 +115,7 @@ public:
                 fByIndex[_resolve("bypass")].push_back(w_13);
                 c_2->add(std::make_unique<CalfWidgetItem>(w_13), CalfPacking{.expandX=false, .expandY=true, .fillX=true, .fillY=true, .attachX=3});
                 auto* w_14 = new CalfToggle(this, *meta.get_param_props(_resolve("bypass")), _resolve("bypass"));
+                w_14->setIcon("bypass");
                 w_14->setShowLabels(false);
                 fWidgets.emplace_back(w_14);
                 fByIndex[_resolve("bypass")].push_back(w_14);
@@ -217,6 +218,7 @@ public:
                             c_33->add(std::move(c_38), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true, .attachX=1});
                         }
                         auto* w_40 = new CalfToggle(this, *meta.get_param_props(_resolve("solo0")), _resolve("solo0"));
+                        w_40->setIcon("solo");
                         w_40->setShowLabels(false);
                         fWidgets.emplace_back(w_40);
                         fByIndex[_resolve("solo0")].push_back(w_40);
@@ -293,6 +295,7 @@ public:
                             c_52->add(std::move(c_57), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true, .attachX=1});
                         }
                         auto* w_59 = new CalfToggle(this, *meta.get_param_props(_resolve("solo1")), _resolve("solo1"));
+                        w_59->setIcon("solo");
                         w_59->setShowLabels(false);
                         fWidgets.emplace_back(w_59);
                         fByIndex[_resolve("solo1")].push_back(w_59);
@@ -369,6 +372,7 @@ public:
                             c_71->add(std::move(c_76), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true, .attachX=1});
                         }
                         auto* w_78 = new CalfToggle(this, *meta.get_param_props(_resolve("solo2")), _resolve("solo2"));
+                        w_78->setIcon("solo");
                         w_78->setShowLabels(false);
                         fWidgets.emplace_back(w_78);
                         fByIndex[_resolve("solo2")].push_back(w_78);
@@ -445,6 +449,7 @@ public:
                             c_90->add(std::move(c_95), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true, .attachX=1});
                         }
                         auto* w_97 = new CalfToggle(this, *meta.get_param_props(_resolve("solo3")), _resolve("solo3"));
+                        w_97->setIcon("solo");
                         w_97->setShowLabels(false);
                         fWidgets.emplace_back(w_97);
                         fByIndex[_resolve("solo3")].push_back(w_97);

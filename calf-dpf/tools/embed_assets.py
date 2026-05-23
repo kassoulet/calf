@@ -29,6 +29,20 @@ ASSETS = [
     "knob_5.png",
     "light_top.png",
     "light_bottom.png",
+    "combo_arrow.png",
+    # Generic 100x160 toggle bitmap (off in top half, on in bottom).
+    "toggle_2.png",
+    # Common toggle icon variants the XML uses via icon="…".
+    "toggle_2_bypass.png",
+    "toggle_2_mute.png",
+    "toggle_2_solo.png",
+    "toggle_2_phase.png",
+    "toggle_2_mono.png",
+    "toggle_2_softclip.png",
+    "toggle_2_listen.png",
+    "toggle_2_pauseplay.png",
+    "toggle_2_sync.png",
+    "toggle_2_logarithmic.png",
 ]
 
 def c_ident(name: str) -> str:

@@ -122,6 +122,7 @@ public:
                 fByIndex[_resolve("lfo")].push_back(w_15);
                 c_2->add(std::make_unique<CalfWidgetItem>(w_15), CalfPacking{.expandX=false, .expandY=true, .fillX=true, .fillY=true, .attachX=4});
                 auto* w_16 = new CalfToggle(this, *meta.get_param_props(_resolve("lfo")), _resolve("lfo"));
+                w_16->setIcon("pauseplay");
                 w_16->setShowLabels(false);
                 fWidgets.emplace_back(w_16);
                 fByIndex[_resolve("lfo")].push_back(w_16);
