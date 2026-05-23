@@ -43,6 +43,7 @@ calf-dpf/build/
 calf-dpf/dsp/libcalfdsp.a
 calf-dpf/tools/lv2_render
 calf-dpf/tools/dsp_smoke
+calf-dpf/screenshots/
 
 # Stray CMake artifacts (CMake build dropped — guard against
 # accidental re-introduction via stale build dirs).
