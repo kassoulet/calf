@@ -4,6 +4,7 @@
  */
 #include "DistrhoUI.hpp"
 #include "CalfLayout.hpp"
+#include "CalfTheme.hpp"
 #include "CalfComboBox.hpp"
 #include "CalfKnob.hpp"
 #include "CalfLabel.hpp"
@@ -203,6 +204,7 @@ public:
                         fByIndex[_resolve("oversampling")].push_back(w_36);
                         c_35->add(std::make_unique<CalfWidgetItem>(w_36), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                         auto* w_37 = new CalfKnob(this, *meta.get_param_props(_resolve("oversampling")), _resolve("oversampling"));
+                        w_37->setKnobSize(3);
                         w_37->setShowLabels(false);
                         fWidgets.emplace_back(w_37);
                         fByIndex[_resolve("oversampling")].push_back(w_37);
@@ -220,6 +222,7 @@ public:
                         fByIndex[_resolve("attack")].push_back(w_40);
                         c_39->add(std::make_unique<CalfWidgetItem>(w_40), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                         auto* w_41 = new CalfKnob(this, *meta.get_param_props(_resolve("attack")), _resolve("attack"));
+                        w_41->setKnobSize(3);
                         w_41->setShowLabels(false);
                         fWidgets.emplace_back(w_41);
                         fByIndex[_resolve("attack")].push_back(w_41);
@@ -237,6 +240,7 @@ public:
                         fByIndex[_resolve("release")].push_back(w_44);
                         c_43->add(std::make_unique<CalfWidgetItem>(w_44), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                         auto* w_45 = new CalfKnob(this, *meta.get_param_props(_resolve("release")), _resolve("release"));
+                        w_45->setKnobSize(3);
                         w_45->setShowLabels(false);
                         fWidgets.emplace_back(w_45);
                         fByIndex[_resolve("release")].push_back(w_45);
@@ -253,6 +257,7 @@ public:
                         fWidgets.emplace_back(w_48);
                         c_47->add(std::make_unique<CalfWidgetItem>(w_48), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                         auto* w_49 = new CalfKnob(this, *meta.get_param_props(_resolve("limit")), _resolve("limit"));
+                        w_49->setKnobSize(5);
                         w_49->setShowLabels(false);
                         fWidgets.emplace_back(w_49);
                         fByIndex[_resolve("limit")].push_back(w_49);
@@ -270,6 +275,7 @@ public:
                         fByIndex[_resolve("asc_coeff")].push_back(w_52);
                         c_51->add(std::make_unique<CalfWidgetItem>(w_52), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                         auto* w_53 = new CalfKnob(this, *meta.get_param_props(_resolve("asc_coeff")), _resolve("asc_coeff"));
+                        w_53->setKnobSize(3);
                         w_53->setShowLabels(false);
                         fWidgets.emplace_back(w_53);
                         fByIndex[_resolve("asc_coeff")].push_back(w_53);
@@ -348,6 +354,7 @@ public:
                                 fWidgets.emplace_back(w_75);
                                 c_74->add(std::make_unique<CalfWidgetItem>(w_75), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                 auto* w_76 = new CalfKnob(this, *meta.get_param_props(_resolve("release0")), _resolve("release0"));
+                                w_76->setKnobSize(2);
                                 w_76->setShowLabels(false);
                                 fWidgets.emplace_back(w_76);
                                 fByIndex[_resolve("release0")].push_back(w_76);
@@ -380,6 +387,7 @@ public:
                                 fWidgets.emplace_back(w_83);
                                 c_82->add(std::make_unique<CalfWidgetItem>(w_83), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                 auto* w_84 = new CalfKnob(this, *meta.get_param_props(_resolve("weight0")), _resolve("weight0"));
+                                w_84->setKnobSize(2);
                                 w_84->setShowLabels(false);
                                 fWidgets.emplace_back(w_84);
                                 fByIndex[_resolve("weight0")].push_back(w_84);
@@ -414,6 +422,7 @@ public:
                                 fWidgets.emplace_back(w_92);
                                 c_91->add(std::make_unique<CalfWidgetItem>(w_92), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                 auto* w_93 = new CalfKnob(this, *meta.get_param_props(_resolve("release1")), _resolve("release1"));
+                                w_93->setKnobSize(2);
                                 w_93->setShowLabels(false);
                                 fWidgets.emplace_back(w_93);
                                 fByIndex[_resolve("release1")].push_back(w_93);
@@ -446,6 +455,7 @@ public:
                                 fWidgets.emplace_back(w_100);
                                 c_99->add(std::make_unique<CalfWidgetItem>(w_100), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                 auto* w_101 = new CalfKnob(this, *meta.get_param_props(_resolve("weight1")), _resolve("weight1"));
+                                w_101->setKnobSize(2);
                                 w_101->setShowLabels(false);
                                 fWidgets.emplace_back(w_101);
                                 fByIndex[_resolve("weight1")].push_back(w_101);
@@ -480,6 +490,7 @@ public:
                                 fWidgets.emplace_back(w_109);
                                 c_108->add(std::make_unique<CalfWidgetItem>(w_109), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                 auto* w_110 = new CalfKnob(this, *meta.get_param_props(_resolve("release2")), _resolve("release2"));
+                                w_110->setKnobSize(2);
                                 w_110->setShowLabels(false);
                                 fWidgets.emplace_back(w_110);
                                 fByIndex[_resolve("release2")].push_back(w_110);
@@ -512,6 +523,7 @@ public:
                                 fWidgets.emplace_back(w_117);
                                 c_116->add(std::make_unique<CalfWidgetItem>(w_117), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                 auto* w_118 = new CalfKnob(this, *meta.get_param_props(_resolve("weight2")), _resolve("weight2"));
+                                w_118->setKnobSize(2);
                                 w_118->setShowLabels(false);
                                 fWidgets.emplace_back(w_118);
                                 fByIndex[_resolve("weight2")].push_back(w_118);
@@ -546,6 +558,7 @@ public:
                                 fWidgets.emplace_back(w_126);
                                 c_125->add(std::make_unique<CalfWidgetItem>(w_126), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                 auto* w_127 = new CalfKnob(this, *meta.get_param_props(_resolve("release3")), _resolve("release3"));
+                                w_127->setKnobSize(2);
                                 w_127->setShowLabels(false);
                                 fWidgets.emplace_back(w_127);
                                 fByIndex[_resolve("release3")].push_back(w_127);
@@ -578,6 +591,7 @@ public:
                                 fWidgets.emplace_back(w_134);
                                 c_133->add(std::make_unique<CalfWidgetItem>(w_134), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                 auto* w_135 = new CalfKnob(this, *meta.get_param_props(_resolve("weight3")), _resolve("weight3"));
+                                w_135->setKnobSize(2);
                                 w_135->setShowLabels(false);
                                 fWidgets.emplace_back(w_135);
                                 fByIndex[_resolve("weight3")].push_back(w_135);
@@ -641,10 +655,22 @@ public:
 protected:
     void onNanoDisplay() override
     {
+        const float w = static_cast<float>(getWidth());
+        const float h = static_cast<float>(getHeight());
+
+        // Themed background: stretch the GTK Calf_Default plugin
+        // background across the whole UI. Falls back to the dark flat
+        // fill if the asset failed to decode.
         beginPath();
-        rect(0, 0, getWidth(), getHeight());
-        fillColor(Color(0.12f, 0.12f, 0.14f));
+        rect(0, 0, w, h);
+        NanoImage* _bg = fTheme.image("background_plugin.png");
+        if (_bg && _bg->isValid()) {
+            fillPaint(imagePattern(0, 0, w, h, 0.0f, *_bg, 1.0f));
+        } else {
+            fillColor(Color(0.12f, 0.12f, 0.14f));
+        }
         fill();
+
         if (fRoot) fRoot->draw(*this);
     }
 
@@ -684,6 +710,7 @@ private:
     std::vector<std::unique_ptr<CalfWidgetBase>>      fWidgets;
     std::map<uint32_t, std::vector<CalfWidgetBase*>>  fByIndex;
     std::unique_ptr<CalfLayoutItem>                   fRoot;
+    CalfTheme                                         fTheme{*this};
     std::unique_ptr<calf_plugins::multibandlimiter_audio_module> fShadow;
     std::vector<float>                            fShadowParams;
     struct LineGraphRef { CalfLineGraph* w; int idx; };

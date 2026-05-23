@@ -194,6 +194,14 @@ def emit_widget(em: Emitter, elem: ET.Element) -> Optional[str]:
     if cls in ("CalfKnob", "CalfVuMeter", "CalfLed", "CalfToggle", "CalfComboBox"):
         em.emit(f"{var}->setShowLabels(false);")
 
+    # GTK knob/scale `size=` attribute: 1..5 picks knob_<n>.png and the
+    # widget's on-screen footprint. Anything outside that range is
+    # clamped CalfKnob-side.
+    if cls == "CalfKnob":
+        sz_attr = elem.attrib.get("size")
+        if sz_attr is not None:
+            em.emit(f"{var}->setKnobSize({int(sz_attr)});")
+
     # Explicit width/height attrs (line-graph etc.)
     w_attr = elem.attrib.get("width")
     h_attr = elem.attrib.get("height")
@@ -465,6 +473,7 @@ def generate(xml_path: Path, class_name: str, metadata_class: str,
  */
 #include "DistrhoUI.hpp"
 #include "CalfLayout.hpp"
+#include "CalfTheme.hpp"
 {include_lines}
 #include <{metadata_header}>
 {module_include}
@@ -513,10 +522,22 @@ public:
 protected:
     void onNanoDisplay() override
     {{
+        const float w = static_cast<float>(getWidth());
+        const float h = static_cast<float>(getHeight());
+
+        // Themed background: stretch the GTK Calf_Default plugin
+        // background across the whole UI. Falls back to the dark flat
+        // fill if the asset failed to decode.
         beginPath();
-        rect(0, 0, getWidth(), getHeight());
-        fillColor(Color(0.12f, 0.12f, 0.14f));
+        rect(0, 0, w, h);
+        NanoImage* _bg = fTheme.image("background_plugin.png");
+        if (_bg && _bg->isValid()) {{
+            fillPaint(imagePattern(0, 0, w, h, 0.0f, *_bg, 1.0f));
+        }} else {{
+            fillColor(Color(0.12f, 0.12f, 0.14f));
+        }}
         fill();
+
         if (fRoot) fRoot->draw(*this);
     }}
 
@@ -546,6 +567,7 @@ private:
     std::vector<std::unique_ptr<CalfWidgetBase>>      fWidgets;
     std::map<uint32_t, std::vector<CalfWidgetBase*>>  fByIndex;
     std::unique_ptr<CalfLayoutItem>                   fRoot;
+    CalfTheme                                         fTheme{{*this}};
 {shadow_member}
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR({class_name})
 }};

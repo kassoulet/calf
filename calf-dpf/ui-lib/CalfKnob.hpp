@@ -10,6 +10,7 @@
 #define CALF_KNOB_HPP
 
 #include "CalfWidgetBase.hpp"
+#include "CalfTheme.hpp"
 #include <string>
 
 START_NAMESPACE_DGL
@@ -20,14 +21,25 @@ public:
     CalfKnob(NanoTopLevelWidget* parent,
              const calf_plugins::parameter_properties& props,
              uint32_t paramIndex)
-        : CalfWidgetBase(parent, props, paramIndex)
+        : CalfWidgetBase(parent, props, paramIndex),
+          fTheme(*static_cast<NanoVG*>(this))
     {
-        setSize(72, 96);
+        applySize();
     }
 
     /* Codegen-emitted UIs render label + value as separate widgets and
      * pass false here so the knob's own text doesn't overlap. */
     void setShowLabels(bool show) noexcept { fShowLabels = show; }
+
+    /* GTK knob size hint from the XML: 1..5 → 25/50/62/84/120 px face.
+     * Mirrors the legacy ctl_knob.cpp size table so codegen-emitted
+     * UIs end up with the same on-screen knob diameters as GTK. */
+    void setKnobSize(int sz) noexcept {
+        if (sz < 1) sz = 1;
+        if (sz > 5) sz = 5;
+        fKnobSize = sz;
+        applySize();
+    }
 
 protected:
     void onNanoDisplay() override
@@ -35,32 +47,60 @@ protected:
         const float w   = static_cast<float>(getWidth());
         const float h   = static_cast<float>(getHeight());
         const float cx  = w * 0.5f;
-        const float cy  = fShowLabels ? 36.0f : h * 0.5f;
-        const float r   = std::min(cx, cy) - 4.0f;
+        const float cy  = fShowLabels ? 32.0f : h * 0.5f;
 
+        // Themed bitmap knob centered on (cx, cy). knob_3 is 62 px;
+        // GTK rendered the static face and drew the orange tick on top,
+        // so do the same here. Sweep mirrors the legacy 0.75π..2.25π
+        // range so existing param-to-angle mapping is preserved.
         const float pos01 = static_cast<float>(fProps.to_01(fValue));
-        const float a0 = 0.75f * M_PI;
-        const float a1 = 2.25f * M_PI;
-        const float a  = a0 + (a1 - a0) * pos01;
+        const float a0    = 0.75f * M_PI;
+        const float a1    = 2.25f * M_PI;
+        const float a     = a0 + (a1 - a0) * pos01;
 
-        beginPath();
-        arc(cx, cy, r, a0, a1, NanoVG::Winding::CW);
-        strokeColor(Color(0.25f, 0.25f, 0.28f));
-        strokeWidth(4.0f);
-        stroke();
+        const int   sizeIdx = fKnobSize;        // 1..5
+        const float kpx     = static_cast<float>(kKnobPx[sizeIdx]);
+        char asset[] = "knob_X.png";
+        asset[5] = static_cast<char>('0' + sizeIdx);
+        NanoImage* knob = fTheme.image(asset);
+        if (knob && knob->isValid()) {
+            const float kx = cx - kpx * 0.5f;
+            const float ky = cy - kpx * 0.5f;
+            beginPath();
+            rect(kx, ky, kpx, kpx);
+            fillPaint(imagePattern(kx, ky, kpx, kpx, 0.0f, *knob, 1.0f));
+            fill();
 
-        beginPath();
-        arc(cx, cy, r, a0, a, NanoVG::Winding::CW);
-        strokeColor(Color(0.96f, 0.62f, 0.16f));
-        strokeWidth(4.0f);
-        stroke();
-
-        const float ix = cx + std::cos(a) * r;
-        const float iy = cy + std::sin(a) * r;
-        beginPath();
-        circle(ix, iy, 4.0f);
-        fillColor(Color(1.0f, 0.85f, 0.5f));
-        fill();
+            // Tick line from outer rim inward, in the legacy orange.
+            // Inner/outer radii scale with knob size.
+            const float r_outer = kpx * 0.42f;
+            const float r_inner = kpx * 0.22f;
+            beginPath();
+            moveTo(cx + std::cos(a) * r_inner, cy + std::sin(a) * r_inner);
+            lineTo(cx + std::cos(a) * r_outer, cy + std::sin(a) * r_outer);
+            strokeColor(Color(0.96f, 0.62f, 0.16f));
+            strokeWidth(std::max(1.5f, kpx * 0.04f));
+            stroke();
+        } else {
+            // Fallback: vector arc rendering (original look).
+            const float r = std::min(cx, cy) - 4.0f;
+            beginPath();
+            arc(cx, cy, r, a0, a1, NanoVG::Winding::CW);
+            strokeColor(Color(0.25f, 0.25f, 0.28f));
+            strokeWidth(4.0f);
+            stroke();
+            beginPath();
+            arc(cx, cy, r, a0, a, NanoVG::Winding::CW);
+            strokeColor(Color(0.96f, 0.62f, 0.16f));
+            strokeWidth(4.0f);
+            stroke();
+            const float ix = cx + std::cos(a) * r;
+            const float iy = cy + std::sin(a) * r;
+            beginPath();
+            circle(ix, iy, 4.0f);
+            fillColor(Color(1.0f, 0.85f, 0.5f));
+            fill();
+        }
 
         if (fShowLabels) {
             fontFace(NANOVG_DEJAVU_SANS_TTF);
@@ -114,11 +154,24 @@ protected:
     }
 
 private:
+    static constexpr int kKnobPx[6] = {0, 25, 50, 62, 84, 120};
+
+    void applySize() {
+        const int p = kKnobPx[fKnobSize];
+        // Knob face + a little headroom; labels are rendered externally
+        // by the codegen layout, so the widget height matches the face.
+        setSize(static_cast<uint>(p + 8), static_cast<uint>(p + 8));
+    }
+
+    CalfTheme fTheme;
+    int    fKnobSize    = 3;   // GTK default
     bool   fShowLabels  = true;
     bool   fDragging    = false;
     int    fDragStartY  = 0;
     double fDragStart01 = 0.0;
 };
+
+constexpr int CalfKnob::kKnobPx[6];
 
 END_NAMESPACE_DGL
 

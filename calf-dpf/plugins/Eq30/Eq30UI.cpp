@@ -4,6 +4,7 @@
  */
 #include "DistrhoUI.hpp"
 #include "CalfLayout.hpp"
+#include "CalfTheme.hpp"
 #include "CalfComboBox.hpp"
 #include "CalfKnob.hpp"
 #include "CalfLabel.hpp"
@@ -593,6 +594,7 @@ public:
                             fWidgets.emplace_back(w_127);
                             c_126->add(std::make_unique<CalfWidgetItem>(w_127), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                             auto* w_128 = new CalfKnob(this, *meta.get_param_props(_resolve("gainscale1")), _resolve("gainscale1"));
+                            w_128->setKnobSize(2);
                             w_128->setShowLabels(false);
                             fWidgets.emplace_back(w_128);
                             fByIndex[_resolve("gainscale1")].push_back(w_128);
@@ -1043,6 +1045,7 @@ public:
                             fWidgets.emplace_back(w_233);
                             c_232->add(std::make_unique<CalfWidgetItem>(w_233), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                             auto* w_234 = new CalfKnob(this, *meta.get_param_props(_resolve("gainscale2")), _resolve("gainscale2"));
+                            w_234->setKnobSize(2);
                             w_234->setShowLabels(false);
                             fWidgets.emplace_back(w_234);
                             fByIndex[_resolve("gainscale2")].push_back(w_234);
@@ -1120,10 +1123,22 @@ public:
 protected:
     void onNanoDisplay() override
     {
+        const float w = static_cast<float>(getWidth());
+        const float h = static_cast<float>(getHeight());
+
+        // Themed background: stretch the GTK Calf_Default plugin
+        // background across the whole UI. Falls back to the dark flat
+        // fill if the asset failed to decode.
         beginPath();
-        rect(0, 0, getWidth(), getHeight());
-        fillColor(Color(0.12f, 0.12f, 0.14f));
+        rect(0, 0, w, h);
+        NanoImage* _bg = fTheme.image("background_plugin.png");
+        if (_bg && _bg->isValid()) {
+            fillPaint(imagePattern(0, 0, w, h, 0.0f, *_bg, 1.0f));
+        } else {
+            fillColor(Color(0.12f, 0.12f, 0.14f));
+        }
         fill();
+
         if (fRoot) fRoot->draw(*this);
     }
 
@@ -1163,6 +1178,7 @@ private:
     std::vector<std::unique_ptr<CalfWidgetBase>>      fWidgets;
     std::map<uint32_t, std::vector<CalfWidgetBase*>>  fByIndex;
     std::unique_ptr<CalfLayoutItem>                   fRoot;
+    CalfTheme                                         fTheme{*this};
     std::unique_ptr<calf_plugins::equalizer30band_audio_module> fShadow;
     std::vector<float>                            fShadowParams;
     struct LineGraphRef { CalfLineGraph* w; int idx; };

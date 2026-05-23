@@ -4,6 +4,7 @@
  */
 #include "DistrhoUI.hpp"
 #include "CalfLayout.hpp"
+#include "CalfTheme.hpp"
 #include "CalfComboBox.hpp"
 #include "CalfKnob.hpp"
 #include "CalfLabel.hpp"
@@ -187,6 +188,7 @@ public:
                                 fByIndex[_resolve("bpm")].push_back(w_33);
                                 c_32->add(std::make_unique<CalfWidgetItem>(w_33), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                 auto* w_34 = new CalfKnob(this, *meta.get_param_props(_resolve("bpm")), _resolve("bpm"));
+                                w_34->setKnobSize(5);
                                 w_34->setShowLabels(false);
                                 fWidgets.emplace_back(w_34);
                                 fByIndex[_resolve("bpm")].push_back(w_34);
@@ -220,6 +222,7 @@ public:
                                     fByIndex[_resolve("ms")].push_back(w_42);
                                     c_41->add(std::make_unique<CalfWidgetItem>(w_42), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                     auto* w_43 = new CalfKnob(this, *meta.get_param_props(_resolve("ms")), _resolve("ms"));
+                                    w_43->setKnobSize(5);
                                     w_43->setShowLabels(false);
                                     fWidgets.emplace_back(w_43);
                                     fByIndex[_resolve("ms")].push_back(w_43);
@@ -241,6 +244,7 @@ public:
                                     fByIndex[_resolve("hz")].push_back(w_47);
                                     c_46->add(std::make_unique<CalfWidgetItem>(w_47), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                                     auto* w_48 = new CalfKnob(this, *meta.get_param_props(_resolve("hz")), _resolve("hz"));
+                                    w_48->setKnobSize(5);
                                     w_48->setShowLabels(false);
                                     fWidgets.emplace_back(w_48);
                                     fByIndex[_resolve("hz")].push_back(w_48);
@@ -292,6 +296,7 @@ public:
                             fByIndex[_resolve("amount")].push_back(w_59);
                             c_58->add(std::make_unique<CalfWidgetItem>(w_59), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                             auto* w_60 = new CalfKnob(this, *meta.get_param_props(_resolve("amount")), _resolve("amount"));
+                            w_60->setKnobSize(5);
                             w_60->setShowLabels(false);
                             fWidgets.emplace_back(w_60);
                             fByIndex[_resolve("amount")].push_back(w_60);
@@ -395,10 +400,22 @@ public:
 protected:
     void onNanoDisplay() override
     {
+        const float w = static_cast<float>(getWidth());
+        const float h = static_cast<float>(getHeight());
+
+        // Themed background: stretch the GTK Calf_Default plugin
+        // background across the whole UI. Falls back to the dark flat
+        // fill if the asset failed to decode.
         beginPath();
-        rect(0, 0, getWidth(), getHeight());
-        fillColor(Color(0.12f, 0.12f, 0.14f));
+        rect(0, 0, w, h);
+        NanoImage* _bg = fTheme.image("background_plugin.png");
+        if (_bg && _bg->isValid()) {
+            fillPaint(imagePattern(0, 0, w, h, 0.0f, *_bg, 1.0f));
+        } else {
+            fillColor(Color(0.12f, 0.12f, 0.14f));
+        }
         fill();
+
         if (fRoot) fRoot->draw(*this);
     }
 
@@ -438,6 +455,7 @@ private:
     std::vector<std::unique_ptr<CalfWidgetBase>>      fWidgets;
     std::map<uint32_t, std::vector<CalfWidgetBase*>>  fByIndex;
     std::unique_ptr<CalfLayoutItem>                   fRoot;
+    CalfTheme                                         fTheme{*this};
     std::unique_ptr<calf_plugins::pulsator_audio_module> fShadow;
     std::vector<float>                            fShadowParams;
     struct LineGraphRef { CalfLineGraph* w; int idx; };

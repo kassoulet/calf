@@ -4,6 +4,7 @@
  */
 #include "DistrhoUI.hpp"
 #include "CalfLayout.hpp"
+#include "CalfTheme.hpp"
 #include "CalfKnob.hpp"
 #include "CalfLabel.hpp"
 #include "CalfLed.hpp"
@@ -174,6 +175,7 @@ public:
                             fByIndex[_resolve("distance_m")].push_back(w_30);
                             c_29->add(std::make_unique<CalfWidgetItem>(w_30), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                             auto* w_31 = new CalfKnob(this, *meta.get_param_props(_resolve("distance_m")), _resolve("distance_m"));
+                            w_31->setKnobSize(3);
                             w_31->setShowLabels(false);
                             fWidgets.emplace_back(w_31);
                             fByIndex[_resolve("distance_m")].push_back(w_31);
@@ -191,6 +193,7 @@ public:
                             fByIndex[_resolve("distance_cm")].push_back(w_34);
                             c_33->add(std::make_unique<CalfWidgetItem>(w_34), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                             auto* w_35 = new CalfKnob(this, *meta.get_param_props(_resolve("distance_cm")), _resolve("distance_cm"));
+                            w_35->setKnobSize(3);
                             w_35->setShowLabels(false);
                             fWidgets.emplace_back(w_35);
                             fByIndex[_resolve("distance_cm")].push_back(w_35);
@@ -208,6 +211,7 @@ public:
                             fByIndex[_resolve("distance_mm")].push_back(w_38);
                             c_37->add(std::make_unique<CalfWidgetItem>(w_38), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                             auto* w_39 = new CalfKnob(this, *meta.get_param_props(_resolve("distance_mm")), _resolve("distance_mm"));
+                            w_39->setKnobSize(3);
                             w_39->setShowLabels(false);
                             fWidgets.emplace_back(w_39);
                             fByIndex[_resolve("distance_mm")].push_back(w_39);
@@ -234,6 +238,7 @@ public:
                             fByIndex[_resolve("temp")].push_back(w_45);
                             c_44->add(std::make_unique<CalfWidgetItem>(w_45), CalfPacking{.expandX=true, .expandY=true, .fillX=true, .fillY=true});
                             auto* w_46 = new CalfKnob(this, *meta.get_param_props(_resolve("temp")), _resolve("temp"));
+                            w_46->setKnobSize(3);
                             w_46->setShowLabels(false);
                             fWidgets.emplace_back(w_46);
                             fByIndex[_resolve("temp")].push_back(w_46);
@@ -333,10 +338,22 @@ public:
 protected:
     void onNanoDisplay() override
     {
+        const float w = static_cast<float>(getWidth());
+        const float h = static_cast<float>(getHeight());
+
+        // Themed background: stretch the GTK Calf_Default plugin
+        // background across the whole UI. Falls back to the dark flat
+        // fill if the asset failed to decode.
         beginPath();
-        rect(0, 0, getWidth(), getHeight());
-        fillColor(Color(0.12f, 0.12f, 0.14f));
+        rect(0, 0, w, h);
+        NanoImage* _bg = fTheme.image("background_plugin.png");
+        if (_bg && _bg->isValid()) {
+            fillPaint(imagePattern(0, 0, w, h, 0.0f, *_bg, 1.0f));
+        } else {
+            fillColor(Color(0.12f, 0.12f, 0.14f));
+        }
         fill();
+
         if (fRoot) fRoot->draw(*this);
     }
 
@@ -376,6 +393,7 @@ private:
     std::vector<std::unique_ptr<CalfWidgetBase>>      fWidgets;
     std::map<uint32_t, std::vector<CalfWidgetBase*>>  fByIndex;
     std::unique_ptr<CalfLayoutItem>                   fRoot;
+    CalfTheme                                         fTheme{*this};
     std::unique_ptr<calf_plugins::comp_delay_audio_module> fShadow;
     std::vector<float>                            fShadowParams;
     struct LineGraphRef { CalfLineGraph* w; int idx; };
