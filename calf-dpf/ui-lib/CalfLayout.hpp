@@ -216,41 +216,64 @@ public:
         fChildren.push_back({std::move(item), pack});
     }
 
+    /* GTK's gtk_table auto-grows when an attach exceeds the declared
+     * rows/cols (some Calf XMLs declare rows="1" but attach-y up to 3).
+     * Mirror that here so minH / minW / place() agree on the row+col
+     * count actually in use. */
+    int effRows() const
+    {
+        int r = fRows;
+        for (const auto& c : fChildren)
+            r = std::max(r, c.pack.attachY + c.pack.attachH);
+        return std::max(1, r);
+    }
+    int effCols() const
+    {
+        int c = fCols;
+        for (const auto& ch : fChildren)
+            c = std::max(c, ch.pack.attachX + ch.pack.attachW);
+        return std::max(1, c);
+    }
+
     int minW() const override
     {
-        std::vector<int> colMin(fCols, 0);
+        const int cols = effCols();
+        std::vector<int> colMin(cols, 0);
         for (const auto& c : fChildren) {
             if (c.pack.attachW != 1) continue;
             const int col = c.pack.attachX;
-            if (col < 0 || col >= fCols) continue;
+            if (col < 0 || col >= cols) continue;
             colMin[col] = std::max(colMin[col], c.item->minW() + 2*c.pack.padX);
         }
-        int sum = fSpacingX * std::max(0, fCols - 1);
+        int sum = fSpacingX * std::max(0, cols - 1);
         for (int v : colMin) sum += v;
         return sum;
     }
 
     int minH() const override
     {
-        std::vector<int> rowMin(fRows, 0);
+        const int rows = effRows();
+        std::vector<int> rowMin(rows, 0);
         for (const auto& c : fChildren) {
             if (c.pack.attachH != 1) continue;
             const int row = c.pack.attachY;
-            if (row < 0 || row >= fRows) continue;
+            if (row < 0 || row >= rows) continue;
             rowMin[row] = std::max(rowMin[row], c.item->minH() + 2*c.pack.padY);
         }
-        int sum = fSpacingY * std::max(0, fRows - 1);
+        int sum = fSpacingY * std::max(0, rows - 1);
         for (int v : rowMin) sum += v;
         return sum;
     }
 
     void place(int x, int y, int w, int h) override
     {
-        std::vector<int> colW(fCols, 0), rowH(fRows, 0);
+        const int cols = effCols();
+        const int rows = effRows();
+        std::vector<int> colW(cols, 0), rowH(rows, 0);
 
         if (fHomogeneous) {
-            const int cw = (w - fSpacingX * std::max(0, fCols - 1)) / std::max(1, fCols);
-            const int ch = (h - fSpacingY * std::max(0, fRows - 1)) / std::max(1, fRows);
+            const int cw = (w - fSpacingX * std::max(0, cols - 1)) / std::max(1, cols);
+            const int ch = (h - fSpacingY * std::max(0, rows - 1)) / std::max(1, rows);
             std::fill(colW.begin(), colW.end(), cw);
             std::fill(rowH.begin(), rowH.end(), ch);
         } else {
@@ -258,43 +281,43 @@ public:
             for (const auto& c : fChildren) {
                 if (c.pack.attachW == 1) {
                     int col = c.pack.attachX;
-                    if (col >= 0 && col < fCols)
+                    if (col >= 0 && col < cols)
                         colW[col] = std::max(colW[col], c.item->minW() + 2*c.pack.padX);
                 }
                 if (c.pack.attachH == 1) {
                     int row = c.pack.attachY;
-                    if (row >= 0 && row < fRows)
+                    if (row >= 0 && row < rows)
                         rowH[row] = std::max(rowH[row], c.item->minH() + 2*c.pack.padY);
                 }
             }
             // Distribute extra w/h evenly across columns/rows.
-            int usedW = fSpacingX * std::max(0, fCols - 1);
-            int usedH = fSpacingY * std::max(0, fRows - 1);
+            int usedW = fSpacingX * std::max(0, cols - 1);
+            int usedH = fSpacingY * std::max(0, rows - 1);
             for (int v : colW) usedW += v;
             for (int v : rowH) usedH += v;
             int extraW = w - usedW;
             int extraH = h - usedH;
-            if (extraW > 0 && fCols > 0) {
-                int per = extraW / fCols, rem = extraW % fCols;
+            if (extraW > 0 && cols > 0) {
+                int per = extraW / cols, rem = extraW % cols;
                 for (int& v : colW) { v += per + (rem > 0 ? (rem--, 1) : 0); }
             }
-            if (extraH > 0 && fRows > 0) {
-                int per = extraH / fRows, rem = extraH % fRows;
+            if (extraH > 0 && rows > 0) {
+                int per = extraH / rows, rem = extraH % rows;
                 for (int& v : rowH) { v += per + (rem > 0 ? (rem--, 1) : 0); }
             }
         }
 
-        std::vector<int> colX(fCols + 1, 0), rowY(fRows + 1, 0);
+        std::vector<int> colX(cols + 1, 0), rowY(rows + 1, 0);
         colX[0] = x;
-        for (int i = 0; i < fCols; ++i) colX[i+1] = colX[i] + colW[i] + fSpacingX;
+        for (int i = 0; i < cols; ++i) colX[i+1] = colX[i] + colW[i] + fSpacingX;
         rowY[0] = y;
-        for (int i = 0; i < fRows; ++i) rowY[i+1] = rowY[i] + rowH[i] + fSpacingY;
+        for (int i = 0; i < rows; ++i) rowY[i+1] = rowY[i] + rowH[i] + fSpacingY;
 
         for (auto& c : fChildren) {
-            int ax = std::clamp(c.pack.attachX, 0, fCols - 1);
-            int ay = std::clamp(c.pack.attachY, 0, fRows - 1);
-            int aw = std::clamp(c.pack.attachW, 1, fCols - ax);
-            int ah = std::clamp(c.pack.attachH, 1, fRows - ay);
+            int ax = std::clamp(c.pack.attachX, 0, cols - 1);
+            int ay = std::clamp(c.pack.attachY, 0, rows - 1);
+            int aw = std::clamp(c.pack.attachW, 1, cols - ax);
+            int ah = std::clamp(c.pack.attachH, 1, rows - ay);
             int cx = colX[ax] + c.pack.padX;
             int cy = rowY[ay] + c.pack.padY;
             int cw = (colX[ax + aw] - fSpacingX) - colX[ax] - 2*c.pack.padX;
